@@ -9,6 +9,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { parseQuestions } from "@/ai/flows/parse-questions";
 import { sequenceQuestions } from "@/ai/flows/sequence-questions";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Loader2 } from "lucide-react";
 
 export default function Home() {
   const [questions, setQuestions] = useState<{ question: string; answer: string }[]>([]);
@@ -18,6 +19,7 @@ export default function Home() {
   const [fileType, setFileType] = useState<".txt" | ".pdf">(".txt");
     const [theme, setTheme] = useState<"light" | "dark" | "fully-black">("light");
     const [testComplete, setTestComplete] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
 
     useEffect(() => {
@@ -41,6 +43,7 @@ export default function Home() {
 
     reader.onload = async () => {
       const fileDataUri = reader.result as string;
+      setIsLoading(true);
       try {
         const parsedQuestions = await parseQuestions({
           fileDataUri: fileDataUri,
@@ -62,16 +65,19 @@ export default function Home() {
         setCurrentQuestionIndex(0); // Reset to the first question
         setFeedback(null); // Clear any previous feedback
         setTestComplete(false); // Reset test completion status
+          setIsLoading(false);
 
       } catch (error: any) {
         console.error("Error parsing questions:", error);
         setFeedback(`Failed to parse questions: ${error.message}`);
+          setIsLoading(false);
       }
     };
 
     reader.onerror = (error) => {
       console.error("Error reading file:", error);
       setFeedback("Failed to read the file.");
+        setIsLoading(false);
     };
 
     reader.readAsDataURL(file);
@@ -161,9 +167,16 @@ export default function Home() {
               {isDragActive ? (
                 <p className="text-foreground">Drop the files here ...</p>
               ) : (
-                <p className="text-foreground">
-                  Drag 'n' drop some files here, or click to select files
-                </p>
+                  isLoading ? (
+                      <div className="flex items-center justify-center">
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Loading...
+                      </div>
+                  ) : (
+                      <p className="text-foreground">
+                          Drag 'n' drop some files here, or click to select files
+                      </p>
+                  )
               )}
             </div>
             {feedback && <p className="text-sm mt-2">{feedback}</p>}
