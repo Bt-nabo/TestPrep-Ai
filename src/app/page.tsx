@@ -120,32 +120,33 @@ export default function Home() {
             </DropdownMenuContent>
         </DropdownMenu>
       <h1 className="text-4xl font-bold mb-6 text-foreground">TestPrep AI</h1>
-      <Card className="w-full max-w-md space-y-4">
-        <CardHeader>
-          <h2 className="text-lg font-semibold">Upload Questions</h2>
-          <p className="text-sm text-muted-foreground">
-            Upload a .txt or .pdf file containing questions and answers.
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div
-            {...getRootProps()}
-            className="flex items-center justify-center w-full h-32 bg-muted rounded-md border-2 border-muted-foreground border-dashed cursor-pointer"
-          >
-            <input {...getInputProps()} />
-            {isDragActive ? (
-              <p className="text-foreground">Drop the files here ...</p>
-            ) : (
-              <p className="text-foreground">
-                Drag 'n' drop some files here, or click to select files
-              </p>
-            )}
-          </div>
-          {feedback && <p className="text-sm mt-2">{feedback}</p>}
-        </CardContent>
-      </Card>
 
-      {questions.length > 0 && (
+      {questions.length === 0 ? (
+        <Card className="w-full max-w-md space-y-4">
+          <CardHeader>
+            <h2 className="text-lg font-semibold">Upload Questions</h2>
+            <p className="text-sm text-muted-foreground">
+              Upload a .txt or .pdf file containing questions and answers.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div
+              {...getRootProps()}
+              className="flex items-center justify-center w-full h-32 bg-muted rounded-md border-2 border-muted-foreground border-dashed cursor-pointer"
+            >
+              <input {...getInputProps()} />
+              {isDragActive ? (
+                <p className="text-foreground">Drop the files here ...</p>
+              ) : (
+                <p className="text-foreground">
+                  Drag 'n' drop some files here, or click to select files
+                </p>
+              )}
+            </div>
+            {feedback && <p className="text-sm mt-2">{feedback}</p>}
+          </CardContent>
+        </Card>
+      ) : (
         <Card className="w-full max-w-md mt-8 space-y-4">
           <CardHeader>
             <h2 className="text-lg font-semibold">
