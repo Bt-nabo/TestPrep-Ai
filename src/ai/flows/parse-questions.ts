@@ -1,6 +1,7 @@
 'use server';
 /**
- * @fileOverview Parses questions and answers from uploaded text or PDF files.
+ * @fileOverview Parses questions and answers from uploaded text or PDF files,
+ * detecting question type (MCQ or normal) and extracting options for MCQs.
  *
  * - parseQuestions - A function that handles parsing questions from uploaded files.
  * - ParseQuestionsInput - The input type for the parseQuestions function.
@@ -23,6 +24,8 @@ export type ParseQuestionsInput = z.infer<typeof ParseQuestionsInputSchema>;
 const ParsedQuestionSchema = z.object({
   question: z.string().describe('The text of the question.'),
   answer: z.string().describe('The correct answer to the question.'),
+  isMultipleChoice: z.boolean().describe('Whether the question is multiple choice.'),
+  options: z.array(z.string()).optional().describe('The multiple choice options, if applicable.'),
 });
 
 const ParseQuestionsOutputSchema = z.array(ParsedQuestionSchema).describe('An array of parsed questions and answers.');
@@ -48,13 +51,19 @@ const prompt = ai.definePrompt({
     schema: z.array(z.object({
       question: z.string().describe('The text of the question.'),
       answer: z.string().describe('The correct answer to the question.'),
+      isMultipleChoice: z.boolean().describe('Whether the question is multiple choice.'),
+      options: z.array(z.string()).optional().describe('The multiple choice options, if applicable.'),
     })),
   },
   prompt: `You are an expert at extracting questions and answers from text files.
 
   Analyze the content of the uploaded file and extract all question and answer pairs.
-  Return the questions and answers as a JSON array of objects, where each object has a "question" and an "answer" field.
-  Ensure that the "question" and "answer" fields are properly formatted and contain the extracted content.
+  Determine if a question is a multiple-choice question (MCQ) based on the presence of options (e.g., A, B, C, D) listed after the question.
+  If the question is an MCQ, extract the question, answer, and options. Otherwise, extract just the question and answer.
+
+  Return the questions and answers as a JSON array of objects.  Each object should have a "question", an "answer", an "isMultipleChoice" (boolean), and optionally an "options" field (array of strings).
+
+  Ensure that the "question" and "answer" fields are properly formatted and contain the extracted content.  The options field should only be present for MCQs.
 
   Here is the file content:
   {{media url=fileDataUri}}

@@ -12,28 +12,30 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { Loader2 } from "lucide-react";
 
 export default function Home() {
-  const [questions, setQuestions] = useState<{ question: string; answer: string }[]>([]);
+  const [questions, setQuestions] = useState<
+    { question: string; answer: string; isMultipleChoice?: boolean; options?: string[] }[]
+  >([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [fileType, setFileType] = useState<".txt" | ".pdf">(".txt");
-    const [theme, setTheme] = useState<"light" | "dark" | "fully-black">("light");
-    const [testComplete, setTestComplete] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark" | "fully-black">("light");
+  const [testComplete, setTestComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
 
-    useEffect(() => {
-        if (theme === "fully-black") {
-            document.documentElement.classList.add("fully-black");
-            document.documentElement.classList.remove("dark");
-        } else if (theme === "dark") {
-            document.documentElement.classList.add("dark");
-            document.documentElement.classList.remove("fully-black");
-        } else {
-            document.documentElement.classList.remove("dark");
-            document.documentElement.classList.remove("fully-black");
-        }
-    }, [theme]);
+  useEffect(() => {
+    if (theme === "fully-black") {
+      document.documentElement.classList.add("fully-black");
+      document.documentElement.classList.remove("dark");
+    } else if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("fully-black");
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.remove("fully-black");
+    }
+  }, [theme]);
 
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -65,19 +67,19 @@ export default function Home() {
         setCurrentQuestionIndex(0); // Reset to the first question
         setFeedback(null); // Clear any previous feedback
         setTestComplete(false); // Reset test completion status
-          setIsLoading(false);
+        setIsLoading(false);
 
       } catch (error: any) {
         console.error("Error parsing questions:", error);
         setFeedback(`Failed to parse questions: ${error.message}`);
-          setIsLoading(false);
+        setIsLoading(false);
       }
     };
 
     reader.onerror = (error) => {
       console.error("Error reading file:", error);
       setFeedback("Failed to read the file.");
-        setIsLoading(false);
+      setIsLoading(false);
     };
 
     reader.readAsDataURL(file);
@@ -117,37 +119,37 @@ export default function Home() {
     }
   };
 
-    const handlePreviousQuestion = () => {
-        setUserAnswer(""); // Clear the user's answer
-        setFeedback(null); // Clear the feedback
+  const handlePreviousQuestion = () => {
+    setUserAnswer(""); // Clear the user's answer
+    setFeedback(null); // Clear the feedback
 
-        if (currentQuestionIndex > 0) {
-            setCurrentQuestionIndex(currentQuestionIndex - 1);
-        }
-    };
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    }
+  };
 
-    const handleReview = () => {
-        setCurrentQuestionIndex(0); // Shift to question 1
-        setTestComplete(false); // Allow navigation
-    };
+  const handleReview = () => {
+    setCurrentQuestionIndex(0); // Shift to question 1
+    setTestComplete(false); // Allow navigation
+  };
 
-    const handleSubmitTest = () => {
-        // Implement submit test logic here, e.g., send data to server
-        alert("Submit test functionality not implemented yet.");
-    };
+  const handleSubmitTest = () => {
+    // Implement submit test logic here, e.g., send data to server
+    alert("Submit test functionality not implemented yet.");
+  };
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background">
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline">Theme</Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("fully-black")}>Fully Black</DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline">Theme</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme("fully-black")}>Fully Black</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <h1 className="text-4xl font-bold mb-6 text-foreground">TestPrep AI</h1>
 
       {questions.length === 0 ? (
@@ -167,16 +169,16 @@ export default function Home() {
               {isDragActive ? (
                 <p className="text-foreground">Drop the files here ...</p>
               ) : (
-                  isLoading ? (
-                      <div className="flex items-center justify-center">
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          Loading...
-                      </div>
-                  ) : (
-                      <p className="text-foreground">
-                          Drag 'n' drop some files here, or click to select files
-                      </p>
-                  )
+                isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Loading...
+                  </div>
+                ) : (
+                  <p className="text-foreground">
+                    Drag 'n' drop some files here, or click to select files
+                  </p>
+                )
               )}
             </div>
             {feedback && <p className="text-sm mt-2">{feedback}</p>}
@@ -191,38 +193,61 @@ export default function Home() {
           </CardHeader>
           <CardContent className="space-y-2">
             {questions[currentQuestionIndex]?.question ? (
-              <p className="text-foreground">
-                {questions[currentQuestionIndex].question}
-              </p>
+              <>
+                <p className="text-foreground">
+                  {questions[currentQuestionIndex].question}
+                </p>
+                {questions[currentQuestionIndex].isMultipleChoice &&
+                  questions[currentQuestionIndex].options && (
+                    <div className="space-y-2">
+                      {questions[currentQuestionIndex].options!.map((option, index) => (
+                        <div key={index} className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            id={`option-${index}`}
+                            name="mcq-option"
+                            value={option}
+                            className="h-4 w-4"
+                          />
+                          <label htmlFor={`option-${index}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            {option}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+              </>
             ) : (
               <p className="text-red-500">Error: Question content not available.</p>
             )}
-            <Textarea
-              placeholder="Your answer"
-              value={userAnswer}
-              onChange={(e) => setUserAnswer(e.target.value)}
-              className="mb-4"
-            />
+            {!questions[currentQuestionIndex]?.isMultipleChoice && (
+              <Textarea
+                placeholder="Your answer"
+                value={userAnswer}
+                onChange={(e) => setUserAnswer(e.target.value)}
+                className="mb-4"
+              />
+            )}
             <div className="flex justify-between">
-                <Button variant="secondary" onClick={handleAnswerSubmit}>
-                    Submit Answer
-                </Button>
+              <Button variant="secondary" onClick={handleAnswerSubmit}>
+                Submit Answer
+              </Button>
             </div>
-              <div className="flex justify-between">
-                  <Button
-                      disabled={currentQuestionIndex === 0}
-                      onClick={handlePreviousQuestion}
-                  >
-                      Previous
-                  </Button>
-                  <Button
-                      onClick={handleNextQuestion}
-                  >
-                      Next Question
-                  </Button>
-              </div>
+            <div className="flex justify-between">
+              <Button
+                disabled={currentQuestionIndex === 0}
+                onClick={handlePreviousQuestion}
+              >
+                Previous
+              </Button>
+              <Button
+                onClick={handleNextQuestion}
+              >
+                Next Question
+              </Button>
+            </div>
           </CardContent>
-             {feedback && <p className="text-sm mt-2">{feedback}</p>}
+          {feedback && <p className="text-sm mt-2">{feedback}</p>}
         </Card>
       ) : (
         <Card className="w-full max-w-md mt-8 space-y-4">
@@ -242,11 +267,11 @@ export default function Home() {
           </CardContent>
         </Card>
       )}
-           {feedback && (
-                <div className="mt-4 text-center text-sm text-gray-500">
-                    {feedback}
-                </div>
-            )}
+      {feedback && (
+        <div className="mt-4 text-center text-sm text-gray-500">
+          {feedback}
+        </div>
+      )}
     </div>
   );
 }
