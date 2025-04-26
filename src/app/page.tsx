@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { parseQuestions } from "@/ai/flows/parse-questions";
 import { sequenceQuestions } from "@/ai/flows/sequence-questions";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export default function Home() {
   const [questions, setQuestions] = useState<{ question: string; answer: string }[]>([]);
@@ -15,6 +16,21 @@ export default function Home() {
   const [userAnswer, setUserAnswer] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [fileType, setFileType] = useState<".txt" | ".pdf">(".txt");
+    const [theme, setTheme] = useState<"light" | "dark" | "fully-black">("light");
+
+    useEffect(() => {
+        if (theme === "fully-black") {
+            document.documentElement.classList.add("fully-black");
+            document.documentElement.classList.remove("dark");
+        } else if (theme === "dark") {
+            document.documentElement.classList.add("dark");
+            document.documentElement.classList.remove("fully-black");
+        } else {
+            document.documentElement.classList.remove("dark");
+            document.documentElement.classList.remove("fully-black");
+        }
+    }, [theme]);
+
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -93,6 +109,16 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background">
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline">Theme</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("fully-black")}>Fully Black</DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
       <h1 className="text-4xl font-bold mb-6 text-foreground">TestPrep AI</h1>
       <Card className="w-full max-w-md space-y-4">
         <CardHeader>
@@ -129,7 +155,7 @@ export default function Home() {
           <CardContent className="space-y-2">
             {questions[currentQuestionIndex] && (
               <p className="text-foreground">
-                {questions[currentQuestionIndex].question}
+                {questions[currentQuestionIndex]?.question}
               </p>
             )}
             <Textarea
