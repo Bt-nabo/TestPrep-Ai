@@ -127,9 +127,11 @@ export default function Home() {
             </h2>
           </CardHeader>
           <CardContent className="space-y-2">
-            <p className="text-foreground">
-              {questions[currentQuestionIndex].question}
-            </p>
+            {questions[currentQuestionIndex] && (
+              <p className="text-foreground">
+                {questions[currentQuestionIndex].question}
+              </p>
+            )}
             <Textarea
               placeholder="Your answer"
               value={userAnswer}
