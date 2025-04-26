@@ -111,9 +111,18 @@ export default function Home() {
     }
   };
 
+    const handlePreviousQuestion = () => {
+        setUserAnswer(""); // Clear the user's answer
+        setFeedback(null); // Clear the feedback
+
+        if (currentQuestionIndex > 0) {
+            setCurrentQuestionIndex(currentQuestionIndex - 1);
+        }
+    };
+
     const handleReview = () => {
-        // Implement review logic here, e.g., navigate to a review page
-        alert("Review functionality not implemented yet.");
+        setCurrentQuestionIndex(0); // Shift to question 1
+        setTestComplete(false); // Allow navigation
     };
 
     const handleSubmitTest = () => {
@@ -182,12 +191,25 @@ export default function Home() {
               className="mb-4"
             />
             <div className="flex justify-between">
-              <Button variant="secondary" onClick={handleAnswerSubmit}>
-                Submit Answer
-              </Button>
-              <Button onClick={handleNextQuestion}>Next Question</Button>
+                <Button variant="secondary" onClick={handleAnswerSubmit}>
+                    Submit Answer
+                </Button>
             </div>
+              <div className="flex justify-between">
+                  <Button
+                      disabled={currentQuestionIndex === 0}
+                      onClick={handlePreviousQuestion}
+                  >
+                      Previous
+                  </Button>
+                  <Button
+                      onClick={handleNextQuestion}
+                  >
+                      Next Question
+                  </Button>
+              </div>
           </CardContent>
+             {feedback && <p className="text-sm mt-2">{feedback}</p>}
         </Card>
       ) : (
         <Card className="w-full max-w-md mt-8 space-y-4">
@@ -207,6 +229,11 @@ export default function Home() {
           </CardContent>
         </Card>
       )}
+           {feedback && (
+                <div className="mt-4 text-center text-sm text-gray-500">
+                    {feedback}
+                </div>
+            )}
     </div>
   );
 }
