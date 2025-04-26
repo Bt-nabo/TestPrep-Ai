@@ -17,6 +17,8 @@ export default function Home() {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [fileType, setFileType] = useState<".txt" | ".pdf">(".txt");
     const [theme, setTheme] = useState<"light" | "dark" | "fully-black">("light");
+    const [testComplete, setTestComplete] = useState(false);
+
 
     useEffect(() => {
         if (theme === "fully-black") {
@@ -59,6 +61,8 @@ export default function Home() {
         setQuestions(orderedQuestions);
         setCurrentQuestionIndex(0); // Reset to the first question
         setFeedback(null); // Clear any previous feedback
+        setTestComplete(false); // Reset test completion status
+
       } catch (error: any) {
         console.error("Error parsing questions:", error);
         setFeedback(`Failed to parse questions: ${error.message}`);
@@ -103,9 +107,19 @@ export default function Home() {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      setFeedback("You've reached the end of the quiz.");
+      setTestComplete(true);
     }
   };
+
+    const handleReview = () => {
+        // Implement review logic here, e.g., navigate to a review page
+        alert("Review functionality not implemented yet.");
+    };
+
+    const handleSubmitTest = () => {
+        // Implement submit test logic here, e.g., send data to server
+        alert("Submit test functionality not implemented yet.");
+    };
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background">
@@ -146,7 +160,7 @@ export default function Home() {
             {feedback && <p className="text-sm mt-2">{feedback}</p>}
           </CardContent>
         </Card>
-      ) : (
+      ) : !testComplete ? (
         <Card className="w-full max-w-md mt-8 space-y-4">
           <CardHeader>
             <h2 className="text-lg font-semibold">
@@ -154,10 +168,12 @@ export default function Home() {
             </h2>
           </CardHeader>
           <CardContent className="space-y-2">
-            {questions[currentQuestionIndex] && (
+            {questions[currentQuestionIndex]?.question ? (
               <p className="text-foreground">
-                {questions[currentQuestionIndex]?.question}
+                {questions[currentQuestionIndex].question}
               </p>
+            ) : (
+              <p className="text-red-500">Error: Question content not available.</p>
             )}
             <Textarea
               placeholder="Your answer"
@@ -170,6 +186,23 @@ export default function Home() {
                 Submit Answer
               </Button>
               <Button onClick={handleNextQuestion}>Next Question</Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="w-full max-w-md mt-8 space-y-4">
+          <CardHeader>
+            <h2 className="text-lg font-semibold">Test Complete!</h2>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <p className="text-foreground">
+              You have reached the end of the test.
+            </p>
+            <div className="flex justify-between">
+              <Button variant="secondary" onClick={handleReview}>
+                Review Answers
+              </Button>
+              <Button onClick={handleSubmitTest}>Submit Test</Button>
             </div>
           </CardContent>
         </Card>
