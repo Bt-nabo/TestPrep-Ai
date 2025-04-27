@@ -27,6 +27,10 @@ export default function Home() {
   const [theme, setTheme] = useState<"light" | "dark" | "fully-black">("light");
   const [testComplete, setTestComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showResults, setShowResults] = useState(false); // Track if results are shown
+  const [results, setResults] = useState<
+    { question: string; userAnswer: string; correctAnswer: string; isCorrect: boolean }[]
+  >([]);
 
   // Quiz Generation State
   const [quizClass, setQuizClass] = useState("");
@@ -52,6 +56,8 @@ export default function Home() {
     setIsLoading(true);
     setQuestions([]); // Clear existing questions when uploading a file
     setTestComplete(false); // Reset test completion status
+    setShowResults(false);
+    setResults([]);
 
     const reader = new FileReader();
     reader.onload = async () => {
@@ -185,16 +191,33 @@ export default function Home() {
   const handleReview = () => {
     setCurrentQuestionIndex(0); // Shift to question 1
     setTestComplete(false); // Allow navigation
+    setShowResults(false); // Hide results if reviewing
   };
 
   const handleSubmitTest = () => {
-    // Implement submit test logic here, e.g., send data to server
-    alert("Submit test functionality not implemented yet.");
+    // Implements submit test logic here, e.g., send data to server
+    // Store user's answer and if it's correct
+
+    const newResults = questions.map((question, index) => {
+      return {
+        question: question.question,
+        userAnswer: userAnswer,
+        correctAnswer: question.answer,
+        isCorrect: userAnswer.toLowerCase().trim() === question.answer.toLowerCase().trim(),
+      };
+    });
+
+    setResults(newResults);
+    setShowResults(true); // Show the results
+    setTestComplete(true);
   };
 
   const handleGenerateQuiz = async () => {
     setIsLoading(true);
     setQuestions([]); // Clear any existing questions
+    setShowResults(false);
+    setResults([]);
+    setTestComplete(false);
 
     try {
       const generatedQuestions = await generateQuizQuestions({
@@ -332,7 +355,7 @@ export default function Home() {
         </Card>
       </div>
 
-      {questions.length === 0 ? null : !testComplete ? (
+      {questions.length === 0 ? null : (!testComplete && !showResults) ? (
         <Card className="w-full max-w-md mt-8 space-y-4">
           <CardHeader>
             <h2 className="text-lg font-semibold">
@@ -400,17 +423,48 @@ export default function Home() {
       ) : (
         <Card className="w-full max-w-md mt-8 space-y-4">
           <CardHeader>
-            <h2 className="text-lg font-semibold">Test Complete!</h2>
+            <h2 className="text-lg font-semibold">
+              {testComplete ? "Test Complete!" : "Test Results"}
+            </h2>
           </CardHeader>
           <CardContent className="space-y-2">
-            <p className="text-foreground">
-              You have reached the end of the test.
-            </p>
+            {testComplete && !showResults ? (
+              <p className="text-foreground">
+                You have reached the end of the test.
+              </p>
+            ) : null}
+            {showResults && results.length > 0 ? (
+              <div>
+                <h3 className="text-md font-semibold mb-2">Your Results:</h3>
+                {results.map((result, index) => (
+                  <div key={index} className="mb-4">
+                    <p className="font-medium">
+                      {index + 1}. {result.question}
+                    </p>
+                    <p>
+                      Your Answer: {result.userAnswer}
+                    </p>
+                    <p>
+                      Correct Answer: {result.correctAnswer}
+                    </p>
+                    <p className={result.isCorrect ? "text-green-500" : "text-red-500"}>
+                      {result.isCorrect ? "Correct" : "Incorrect"}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : null}
             <div className="flex justify-between">
-              <Button variant="secondary" onClick={handleReview}>
-                Review Answers
-              </Button>
-              <Button onClick={handleSubmitTest}>Submit Test</Button>
+              {testComplete && !showResults ? (
+                <Button variant="secondary" onClick={handleReview}>
+                  Review Answers
+                </Button>
+              ) : null}
+              {!showResults ? (
+                <Button onClick={handleSubmitTest} disabled={showResults}>
+                  Submit Test
+                </Button>
+              ) : null}
             </div>
           </CardContent>
         </Card>
