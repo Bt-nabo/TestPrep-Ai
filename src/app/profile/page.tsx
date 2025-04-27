@@ -1,4 +1,3 @@
-
 'use client';
 
 import {useState, useEffect} from 'react';
@@ -135,7 +134,7 @@ export default function Profile() {
             <AvatarImage src={profilePicture || selectedImage || PROFILE_PICTURES[0]} alt="Profile Picture" className="rounded-none" />
             <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
-          <h2 className="text-2xl font-semibold">Welcome back, {name}!</h2>
+          <h2 className="text-3xl font-semibold font-serif">Welcome back, {name}!</h2>
         </CardHeader>
         <CardContent className="space-y-4">
           
@@ -150,3 +149,4 @@ export default function Profile() {
     </div>
   );
 }
+
