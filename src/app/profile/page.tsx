@@ -8,19 +8,33 @@ import {Avatar, AvatarImage, AvatarFallback} from "@/components/ui/avatar";
 import {Progress} from "@/components/ui/progress";
 import {CheckCircle, MessageSquare, BookOpen, Trophy} from "lucide-react";
 import {cn} from "@/lib/utils";
+import {DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem} from "@/components/ui/dropdown-menu";
+
+const PROFILE_PICTURES = [
+  "https://picsum.photos/id/237/300/300",
+  "https://picsum.photos/id/238/300/300",
+  "https://picsum.photos/id/239/300/300",
+  "https://picsum.photos/id/240/300/300",
+];
 
 export default function Profile() {
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const [name, setName] = useState(''); // Changed default name to empty string
+  const [profilePicture, setProfilePicture] = useState('');
   const [points, setPoints] = useState(20);
   const [isMonet, setIsMonet] = useState(false); // Track if monet theme is active
 
   useEffect(() => {
     const storedName = localStorage.getItem('userName');
+    const storedProfilePicture = localStorage.getItem('userProfilePicture');
     const setupStatus = localStorage.getItem('isSetupComplete');
 
     if (storedName) {
       setName(storedName);
+    }
+
+    if (storedProfilePicture) {
+      setProfilePicture(storedProfilePicture);
     }
 
     if (setupStatus === 'true') {
@@ -30,8 +44,13 @@ export default function Profile() {
 
   const handleSetupComplete = () => {
     localStorage.setItem('userName', name);
+    localStorage.setItem('userProfilePicture', profilePicture || PROFILE_PICTURES[0]); // Default to first image if none selected
     localStorage.setItem('isSetupComplete', 'true');
     setIsSetupComplete(true);
+  };
+
+  const handleProfilePictureSelect = (picture: string) => {
+    setProfilePicture(picture);
   };
 
   if (!isSetupComplete) {
@@ -54,6 +73,27 @@ export default function Profile() {
                 onChange={(e) => setName(e.target.value)}
               />
             </div>
+
+            <div>
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Select Profile Picture
+              </label>
+              <div className="flex space-x-2">
+                {PROFILE_PICTURES.map((picture) => (
+                  <button
+                    key={picture}
+                    onClick={() => handleProfilePictureSelect(picture)}
+                    className={cn(
+                      "rounded-full overflow-hidden h-10 w-10 border-2",
+                      profilePicture === picture ? "border-primary" : "border-transparent"
+                    )}
+                  >
+                    <img src={picture} alt="Profile Picture Option" className="object-cover h-full w-full" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <Button onClick={handleSetupComplete}>Complete Setup</Button>
           </CardContent>
         </Card>
@@ -66,7 +106,7 @@ export default function Profile() {
       <Card className="w-full max-w-md">
         <CardHeader className="flex flex-col items-center">
           <Avatar className="w-32 h-32 mb-4">
-            <AvatarImage src="https://picsum.photos/id/237/300/300" alt="Profile Picture" />
+            <AvatarImage src={profilePicture || PROFILE_PICTURES[0]} alt="Profile Picture" />
             <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <h2 className="text-2xl font-semibold">Welcome back, {name}!</h2>
@@ -84,4 +124,3 @@ export default function Profile() {
     </div>
   );
 }
-
