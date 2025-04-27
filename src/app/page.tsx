@@ -34,7 +34,7 @@ function levenshteinDistance(a: string, b: string): number {
 
   // Fill in the matrix
   for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; i <= a.length; j++) {
+    for (let j = 1; j <= a.length; j++) {
       if (b.charAt(i - 1) === a.charAt(j - 1)) {
         matrix[i][j] = matrix[i - 1][j - 1];
       } else {
@@ -88,6 +88,7 @@ export default function Home() {
 
   useEffect(() => {
     document.documentElement.classList.remove("dark", "fully-black", "monet");
+    setMonetBackgroundColor(null); // Reset Monet background color
 
     if (theme === "fully-black") {
       document.documentElement.classList.add("fully-black");
@@ -97,8 +98,6 @@ export default function Home() {
       document.documentElement.classList.add("monet");
       // Generate random Monet-like color
       generateMonetColor();
-    } else {
-      setMonetBackgroundColor(null); // Reset Monet background color
     }
   }, [theme]);
 
@@ -334,7 +333,7 @@ export default function Home() {
     };
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background px-4 shadow-lg">
+    <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background px-4 shadow-lg" style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline">Theme</Button>
@@ -350,7 +349,7 @@ export default function Home() {
 
       <div className="flex flex-col w-full max-w-4xl items-center">
         {/* Upload Questions Section */}
-        <Card className="w-full max-w-md space-y-4 mb-8" style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
+        <Card className="w-full max-w-md space-y-4 mb-8">
           <CardHeader>
             <h2 className="text-lg font-semibold">Upload Questions</h2>
             <p className="text-sm text-muted-foreground">
@@ -383,7 +382,7 @@ export default function Home() {
         </Card>
 
         {/* Quiz Asking Agent Section */}
-        <Card className="w-full max-w-md space-y-4" style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
+        <Card className="w-full max-w-md space-y-4">
           <CardHeader>
             <h2 className="text-lg font-semibold">Quiz Asking Agent</h2>
             <p className="text-sm text-muted-foreground">
@@ -450,7 +449,7 @@ export default function Home() {
       </div>
 
       {questions.length === 0 ? null : (!testComplete && !showResults) ? (
-        <Card className="w-full max-w-md mt-8 space-y-4" style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
+        <Card className="w-full max-w-md mt-8 space-y-4">
           <CardHeader>
             <h2 className="text-lg font-semibold">
               Question {currentQuestionIndex + 1} / {questions.length}
@@ -511,7 +510,7 @@ export default function Home() {
           {feedback && <p className="text-sm mt-2">{feedback}</p>}
         </Card>
       ) : (
-        <Card className="w-full max-w-md mt-8 space-y-4" style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
+        <Card className="w-full max-w-md mt-8 space-y-4">
           <CardHeader>
             <h2 className="text-lg font-semibold">
               {testComplete ? "Test Complete!" : "Test Results"}
