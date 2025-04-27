@@ -57,7 +57,6 @@ export default function Home() {
   const [userAnswer, setUserAnswer] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [detectedFileType, setDetectedFileType] = useState<FileType | null>(null);
-  const [theme, setTheme] = useState<"light" | "dark" | "fully-black" | "monet">("monet");
   const [testComplete, setTestComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false); // Track if results are shown
@@ -83,20 +82,6 @@ export default function Home() {
     };
 
 
-  useEffect(() => {
-    document.documentElement.classList.remove("dark", "fully-black", "monet");
-    setMonetBackgroundColor(null); // Reset Monet background color
-
-    if (theme === "fully-black") {
-      document.documentElement.classList.add("fully-black");
-    } else if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else if (theme === "monet") {
-      document.documentElement.classList.add("monet");
-      // Generate random Monet-like color
-      generateMonetColor();
-    }
-  }, [theme]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -343,33 +328,19 @@ export default function Home() {
         if (theme === "monet") {
             generateMonetColor(); // Regenerate color if already in monet theme
         } else {
-            setTheme("monet"); // Switch to monet theme
+            // setTheme("monet"); // Switch to monet theme
         }
     };
 
-    useEffect(() => {
-        if (theme === "monet") {
-            generateMonetColor();
-        }
-    }, [theme]);
+    // useEffect(() => {
+    //     if (theme === "monet") {
+    //         generateMonetColor();
+    //     }
+    // }, [theme]);
 
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background px-4 shadow-lg" style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
-                  <div className="absolute top-4 left-4">
-                      <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                              <Button variant="outline">Theme</Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                              <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => setTheme("fully-black")}>Fully Black</DropdownMenuItem>
-                              <DropdownMenuItem onClick={toggleMonetTheme}>Monet</DropdownMenuItem>
-                          </DropdownMenuContent>
-                      </DropdownMenu>
-                  </div>
-      <h1 className="text-4xl font-bold mb-6 text-foreground">TestPrep AI</h1>
+    <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background px-4 shadow-lg">
 
                            <div className="flex flex-col w-full max-w-4xl items-center">
 
@@ -613,5 +584,4 @@ export default function Home() {
     </div>
   );
 }
-
 
