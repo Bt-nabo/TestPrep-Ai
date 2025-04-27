@@ -49,7 +49,7 @@ export default function Profile() {
           <div>
             <h3 className="text-lg font-semibold mb-2">Today's Progress</h3>
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
+              {/*<div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <MessageSquare className="w-4 h-4 text-muted-foreground" />
                   <span>Talked</span>
@@ -62,7 +62,7 @@ export default function Profile() {
                   <span>Read</span>
                 </div>
                 <Progress value={progressRead} />
-              </div>
+              </div>*/}
             </div>
           </div>
 
@@ -94,4 +94,5 @@ export default function Profile() {
     </div>
   );
 }
+
 
