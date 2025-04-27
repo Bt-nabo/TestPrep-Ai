@@ -48,7 +48,7 @@ export default function Profile() {
           
 
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Achievement</h3>
+            
             <span>Spend 40 minutes in the app today</span>
             <span className="font-semibold">{points} Points</span>
           </div>
@@ -59,5 +59,6 @@ export default function Profile() {
     </div>
   );
 }
+
 
 
