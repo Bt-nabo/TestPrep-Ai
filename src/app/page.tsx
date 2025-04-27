@@ -14,6 +14,7 @@ import { Loader2 } from "lucide-react";
 import { fileTypeFromBuffer } from 'file-type';
 import * as mammoth from 'mammoth';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+//import * as odtParser from 'odt-parser';
 
 
 export type FileType = ".txt" | ".pdf" | ".rtf" | ".docx";
@@ -57,7 +58,7 @@ export default function Home() {
   const [userAnswer, setUserAnswer] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [detectedFileType, setDetectedFileType] = useState<FileType | null>(null);
-  const [theme, setTheme] = useState<"light" | "dark" | "fully-black" | "monet">("light");
+  const [theme, setTheme] = useState<"light" | "dark" | "fully-black" | "monet">("monet");
   const [testComplete, setTestComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false); // Track if results are shown
@@ -77,6 +78,13 @@ export default function Home() {
     // Monet Theme Random Color State
     const [monetBackgroundColor, setMonetBackgroundColor] = useState<string | null>(null);
 
+    const generateMonetColor = () => {
+        const hue = Math.floor(Math.random() * 360);
+        const saturation = Math.floor(Math.random() * 50) + 50; // Ensure saturation is high
+        const lightness = Math.floor(Math.random() * 30) + 70;   // Ensure lightness is high
+        setMonetBackgroundColor(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
+    };
+
 
   useEffect(() => {
     document.documentElement.classList.remove("dark", "fully-black", "monet");
@@ -88,10 +96,7 @@ export default function Home() {
     } else if (theme === "monet") {
       document.documentElement.classList.add("monet");
       // Generate random Monet-like color
-      const hue = Math.floor(Math.random() * 360);
-      const saturation = Math.floor(Math.random() * 50) + 50; // Ensure saturation is high
-      const lightness = Math.floor(Math.random() * 30) + 70;   // Ensure lightness is high
-      setMonetBackgroundColor(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
+      generateMonetColor();
     } else {
       setMonetBackgroundColor(null); // Reset Monet background color
     }
@@ -269,7 +274,7 @@ export default function Home() {
     // Implements submit test logic here, e.g., send data to server
     // Store user's answer and if it's correct
 
-    const newResults = await Promise.all(questions.map(async (question, index) => {
+    const newResults = await Promise.all(questions.map((question, index) => {
       const correctAnswer = question?.answer?.toLowerCase().trim() || "";
       const userAnswerLower = updatedAnswers[index]?.toLowerCase().trim() || "";
       const distance = levenshteinDistance(userAnswerLower, correctAnswer);
@@ -325,6 +330,13 @@ export default function Home() {
     setUserAnswer(option);
   };
 
+    const toggleMonetTheme = () => {
+        if (theme === "monet") {
+            generateMonetColor(); // Regenerate color if already in monet theme
+        } else {
+            setTheme("monet"); // Switch to monet theme
+        }
+    };
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background px-4 shadow-lg">
@@ -336,7 +348,7 @@ export default function Home() {
           <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
           <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
           <DropdownMenuItem onClick={() => setTheme("fully-black")}>Fully Black</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setTheme("monet")}>Monet</DropdownMenuItem>
+          <DropdownMenuItem onClick={toggleMonetTheme}>Monet</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <h1 className="text-4xl font-bold mb-6 text-foreground">TestPrep AI</h1>
@@ -443,7 +455,7 @@ export default function Home() {
       </div>
 
       {questions.length === 0 ? null : (!testComplete && !showResults) ? (
-        <Card className="w-full max-w-md mt-8 space-y-4">
+        <Card className="w-full max-w-md mt-8 space-y-4" style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
           <CardHeader>
             <h2 className="text-lg font-semibold">
               Question {currentQuestionIndex + 1} / {questions.length}
@@ -504,7 +516,7 @@ export default function Home() {
           {feedback && <p className="text-sm mt-2">{feedback}</p>}
         </Card>
       ) : (
-        <Card className="w-full max-w-md mt-8 space-y-4">
+        <Card className="w-full max-w-md mt-8 space-y-4" style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
           <CardHeader>
             <h2 className="text-lg font-semibold">
               {testComplete ? "Test Complete!" : "Test Results"}
@@ -571,3 +583,4 @@ export default function Home() {
     </div>
   );
 }
+
