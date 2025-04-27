@@ -74,14 +74,26 @@ export default function Home() {
   // Storing User Answers
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
 
+    // Monet Theme Random Color State
+    const [monetBackgroundColor, setMonetBackgroundColor] = useState<string | null>(null);
+
 
   useEffect(() => {
-    document.documentElement.classList.remove("dark", "fully-black");
+    document.documentElement.classList.remove("dark", "fully-black", "monet");
 
     if (theme === "fully-black") {
       document.documentElement.classList.add("fully-black");
     } else if (theme === "dark") {
       document.documentElement.classList.add("dark");
+    } else if (theme === "monet") {
+      document.documentElement.classList.add("monet");
+      // Generate random Monet-like color
+      const hue = Math.floor(Math.random() * 360);
+      const saturation = Math.floor(Math.random() * 50) + 50; // Ensure saturation is high
+      const lightness = Math.floor(Math.random() * 30) + 70;   // Ensure lightness is high
+      setMonetBackgroundColor(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
+    } else {
+      setMonetBackgroundColor(null); // Reset Monet background color
     }
   }, [theme]);
 
@@ -331,7 +343,7 @@ export default function Home() {
 
       <div className="flex flex-col w-full max-w-4xl items-center">
         {/* Upload Questions Section */}
-        <Card className="w-full max-w-md space-y-4 mb-8">
+        <Card className="w-full max-w-md space-y-4 mb-8" style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
           <CardHeader>
             <h2 className="text-lg font-semibold">Upload Questions</h2>
             <p className="text-sm text-muted-foreground">
@@ -364,7 +376,7 @@ export default function Home() {
         </Card>
 
         {/* Quiz Asking Agent Section */}
-        <Card className="w-full max-w-md space-y-4">
+        <Card className="w-full max-w-md space-y-4" style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
           <CardHeader>
             <h2 className="text-lg font-semibold">Quiz Asking Agent</h2>
             <p className="text-sm text-muted-foreground">
