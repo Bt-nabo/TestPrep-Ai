@@ -203,7 +203,7 @@ export default function Home() {
       </DropdownMenu>
       <h1 className="text-4xl font-bold mb-6 text-foreground">TestPrep AI</h1>
 
-      <div className="flex w-full max-w-4xl justify-center space-x-4">
+      <div className="flex flex-col w-full max-w-4xl items-center">
         {/* Upload Questions Section */}
         <Card className="w-full max-w-md space-y-4">
           <CardHeader>
@@ -238,7 +238,7 @@ export default function Home() {
         </Card>
 
         {/* Quiz Asking Agent Section */}
-        <Card className="w-full max-w-md space-y-4">
+        <Card className="w-full max-w-md mt-8 space-y-4">
           <CardHeader>
             <h2 className="text-lg font-semibold">Quiz Asking Agent</h2>
             <p className="text-sm text-muted-foreground">
