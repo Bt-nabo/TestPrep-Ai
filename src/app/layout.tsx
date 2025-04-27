@@ -1,3 +1,4 @@
+
 'use client';
 
 import type {Metadata} from 'next';
@@ -18,10 +19,10 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-export const metadata: Metadata = {
-  title: 'TestPrep AI',
-  description: 'Ace your exams with AI-powered test preparation.',
-};
+// export const metadata: Metadata = {
+//   title: 'TestPrep AI',
+//   description: 'Ace your exams with AI-powered test preparation.',
+// };
 
 export default function RootLayout({
   children,
