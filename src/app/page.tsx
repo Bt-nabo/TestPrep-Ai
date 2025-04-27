@@ -71,7 +71,6 @@ export default function Home() {
   const [quizTopic, setQuizTopic] = useState("");
   const [numQuestions, setNumQuestions] = useState(5); // Default to 5 questions
     const [mcqOnly, setMcqOnly] = useState(false); // State for MCQ toggle
-      const [userName, setUserName] = useState("");//Welcome screen
 
   // Storing User Answers
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
@@ -354,11 +353,6 @@ export default function Home() {
         }
     }, [theme]);
 
-      // Function to update the userName
-    const updateUserName = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setUserName(event.target.value);
-    };
-
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background px-4 shadow-lg" style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
@@ -377,9 +371,6 @@ export default function Home() {
                   </div>
       <h1 className="text-4xl font-bold mb-6 text-foreground">TestPrep AI</h1>
 
-                  {userName ? (
-                      <>
-                          <p className="text-lg text-foreground mb-4">Hello {userName}, Welcome to Exam Preparation App!</p>
                            <div className="flex flex-col w-full max-w-4xl items-center">
 
         {/* Upload Questions Section */}
@@ -612,23 +603,8 @@ export default function Home() {
           </CardContent>
         </Card>
       )}
-                      </>
-                  ) : (
-                      <div className="flex flex-col items-center justify-center">
-                          <Input
-                              type="text"
-                              placeholder="Enter your name"
-                              value={userName}
-                              onChange={updateUserName}
-                              className="mb-4"
-                              onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                      e.preventDefault();
-                                  }
-                              }}
-                          />
-                      </div>
-                  )}
+    
+
       {feedback && (
         <div className="mt-4 text-center text-sm text-gray-500">
           {feedback}
@@ -637,4 +613,5 @@ export default function Home() {
     </div>
   );
 }
+
 
