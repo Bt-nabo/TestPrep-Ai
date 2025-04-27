@@ -57,7 +57,7 @@ export default function Home() {
   const [userAnswer, setUserAnswer] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [detectedFileType, setDetectedFileType] = useState<FileType | null>(null);
-  const [theme, setTheme] = useState<"light" | "dark" | "fully-black">("light");
+  const [theme, setTheme] = useState<"light" | "dark" | "fully-black" | "monet">("light");
   const [testComplete, setTestComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false); // Track if results are shown
@@ -251,7 +251,7 @@ export default function Home() {
 
   };
 
-  const handleSubmitTest = () => {
+  const handleSubmitTest = async () => {
     // Store user's final answer for current question
     const updatedAnswers = [...userAnswers];
     updatedAnswers[currentQuestionIndex] = userAnswer;
@@ -260,18 +260,24 @@ export default function Home() {
     // Implements submit test logic here, e.g., send data to server
     // Store user's answer and if it's correct
 
-    const newResults = questions.map((question, index) => {
-         const correctAnswer = question?.answer?.toLowerCase().trim() || "";
-         const userAnswerLower = updatedAnswers[index]?.toLowerCase().trim() || "";
-         const distance = levenshteinDistance(userAnswerLower, correctAnswer);
-         const threshold = Math.max(3, Math.floor(correctAnswer.length * 0.2));
+    const newResults = await Promise.all(questions.map(async (question, index) => {
+      const correctAnswer = question?.answer?.toLowerCase().trim() || "";
+      const userAnswerLower = updatedAnswers[index]?.toLowerCase().trim() || "";
+      const distance = levenshteinDistance(userAnswerLower, correctAnswer);
+      const threshold = Math.max(3, Math.floor(correctAnswer.length * 0.2));
+      let isCorrect = distance <= threshold;
+
+      //if the question is not multiple choice and the answer is incorrect, we will try to ask Gemini to see if the answer is correct or not
+      if (!question?.isMultipleChoice && !isCorrect) {
+
+      }
       return {
         question: question.question,
         userAnswer: updatedAnswers[index] || "",
         correctAnswer: question.answer,
         isCorrect: distance <= threshold,
       };
-    });
+    }));
 
     setResults(newResults);
     setShowResults(true); // Show the results
@@ -321,6 +327,7 @@ export default function Home() {
           <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
           <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
           <DropdownMenuItem onClick={() => setTheme("fully-black")}>Fully Black</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme("monet")}>Monet</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <h1 className="text-4xl font-bold mb-6 text-foreground">TestPrep AI</h1>
