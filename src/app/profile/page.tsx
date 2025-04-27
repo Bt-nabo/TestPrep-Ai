@@ -49,7 +49,6 @@ export default function Profile() {
 
           <div className="flex items-center justify-between">
             
-            <span>Spend 40 minutes in the app today</span>
             <span className="font-semibold">{points} Points</span>
           </div>
 
