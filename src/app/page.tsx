@@ -312,7 +312,7 @@ export default function Home() {
 
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background px-4">
+    <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background px-4 shadow-lg">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline">Theme</Button>
@@ -555,3 +555,4 @@ export default function Home() {
     </div>
   );
 }
+
