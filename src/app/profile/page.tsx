@@ -41,42 +41,11 @@ export default function Profile() {
           <h2 className="text-2xl font-semibold">Welcome back, {name}!</h2>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="text-sm font-medium">Today's Mood</div>
-            <div className="w-8 h-8 rounded-full border"></div>
-          </div>
+          
 
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Today's Progress</h3>
-            <div className="space-y-3">
-              {/*<div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <MessageSquare className="w-4 h-4 text-muted-foreground" />
-                  <span>Talked</span>
-                </div>
-                <Progress value={progressTalk} />
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <BookOpen className="w-4 h-4 text-muted-foreground" />
-                  <span>Read</span>
-                </div>
-                <Progress value={progressRead} />
-              </div>*/}
-            </div>
-          </div>
+          
 
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Goals</h3>
-            <div className="flex items-center justify-between">
-              <span>Make 2 new friends in school</span>
-              <CheckCircle className="w-5 h-5 text-green-500" />
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Play 5 different scenarios</span>
-              <div className="w-5 h-5 rounded-full border"></div>
-            </div>
-          </div>
+          
 
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Achievement</h3>
@@ -84,11 +53,7 @@ export default function Profile() {
             <span className="font-semibold">{points} Points</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <Button variant="secondary">Goals</Button>
-            <Button variant="secondary">Achievements</Button>
-            <Button variant="secondary">Journal</Button>
-          </div>
+          
         </CardContent>
       </Card>
     </div>
