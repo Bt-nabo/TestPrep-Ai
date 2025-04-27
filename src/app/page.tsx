@@ -71,6 +71,10 @@ export default function Home() {
   const [quizTopic, setQuizTopic] = useState("");
   const [numQuestions, setNumQuestions] = useState(5); // Default to 5 questions
 
+  // Storing User Answers
+  const [userAnswers, setUserAnswers] = useState<string[]>([]);
+
+
   useEffect(() => {
     if (theme === "fully-black") {
       document.documentElement.classList.add("fully-black");
@@ -91,6 +95,8 @@ export default function Home() {
     setTestComplete(false); // Reset test completion status
     setShowResults(false);
     setResults([]);
+    setUserAnswers([]); // Clear existing user answers
+
 
     const reader = new FileReader();
     reader.onload = async () => {
@@ -209,22 +215,33 @@ export default function Home() {
   };
 
   const handleNextQuestion = () => {
+    // Store the user's answer
+    const updatedAnswers = [...userAnswers];
+    updatedAnswers[currentQuestionIndex] = userAnswer;
+    setUserAnswers(updatedAnswers);
+
     setUserAnswer(""); // Clear the user's answer
     setFeedback(null); // Clear the feedback
 
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
+       setUserAnswer(updatedAnswers[currentQuestionIndex + 1] || ""); // Load next answer if available
     } else {
       setTestComplete(true);
     }
   };
 
   const handlePreviousQuestion = () => {
-    setUserAnswer(""); // Clear the user's answer
+      // Store the user's answer
+      const updatedAnswers = [...userAnswers];
+      updatedAnswers[currentQuestionIndex] = userAnswer;
+      setUserAnswers(updatedAnswers);
+
     setFeedback(null); // Clear the feedback
 
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
+      setUserAnswer(userAnswers[currentQuestionIndex - 1] || ""); // Load previous answer
     }
   };
 
@@ -232,20 +249,27 @@ export default function Home() {
     setCurrentQuestionIndex(0); // Shift to question 1
     setTestComplete(false); // Allow navigation
     setShowResults(false); // Hide results if reviewing
+    setUserAnswer(userAnswers[0] || ""); // Load the first answer, if available
+
   };
 
   const handleSubmitTest = () => {
+    // Store user's final answer for current question
+    const updatedAnswers = [...userAnswers];
+    updatedAnswers[currentQuestionIndex] = userAnswer;
+    setUserAnswers(updatedAnswers);
+
     // Implements submit test logic here, e.g., send data to server
     // Store user's answer and if it's correct
 
     const newResults = questions.map((question, index) => {
          const correctAnswer = question.answer.toLowerCase().trim();
-         const userAnswerLower = userAnswer.toLowerCase().trim();
+         const userAnswerLower = updatedAnswers[index]?.toLowerCase().trim() || "";
          const distance = levenshteinDistance(userAnswerLower, correctAnswer);
          const threshold = Math.max(3, Math.floor(correctAnswer.length * 0.2));
       return {
         question: question.question,
-        userAnswer: userAnswer,
+        userAnswer: updatedAnswers[index] || "",
         correctAnswer: question.answer,
         isCorrect: distance <= threshold,
       };
@@ -262,6 +286,7 @@ export default function Home() {
     setShowResults(false);
     setResults([]);
     setTestComplete(false);
+    setUserAnswers([]); // Clear user answers
 
     try {
       const generatedQuestions = await generateQuizQuestions({
