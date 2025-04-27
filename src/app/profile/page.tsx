@@ -9,12 +9,78 @@ import {Progress} from "@/components/ui/progress";
 import {CheckCircle, MessageSquare, BookOpen, Trophy} from "lucide-react";
 import {cn} from "@/lib/utils";
 import {DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem} from "@/components/ui/dropdown-menu";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {Label} from "@/components/ui/label";
 
 const PROFILE_PICTURES = [
   "https://picsum.photos/id/237/300/300",
   "https://picsum.photos/id/238/300/300",
   "https://picsum.photos/id/239/300/300",
   "https://picsum.photos/id/240/300/300",
+];
+
+// Sample data for classes and subjects
+const classes = [
+  {
+    value: "1",
+    label: "Class 1",
+    subjects: ["English", "Mathematics", "Science"],
+  },
+  {
+    value: "2",
+    label: "Class 2",
+    subjects: ["English", "Mathematics", "Science"],
+  },
+  {
+    value: "3",
+    label: "Class 3",
+    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+  },
+  {
+    value: "4",
+    label: "Class 4",
+    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+  },
+  {
+    value: "5",
+    label: "Class 5",
+    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+  },
+  {
+    value: "6",
+    label: "Class 6",
+    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+  },
+  {
+    value: "7",
+    label: "Class 7",
+    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+  },
+  {
+    value: "8",
+    label: "Class 8",
+    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+  },
+  {
+    value: "9",
+    label: "Class 9",
+    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+  },
+  {
+    value: "10",
+    label: "Class 10",
+    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+  },
+  {
+    value: "11",
+    label: "Class 11",
+    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+  },
+  {
+    value: "12",
+    label: "Class 12",
+    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+  },
 ];
 
 export default function Profile() {
@@ -25,9 +91,10 @@ export default function Profile() {
   const [isMonet, setIsMonet] = useState(false); // Track if monet theme is active
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [showChangePictureOptions, setShowChangePictureOptions] = useState(false);
-    const [userClass, setUserClass] = useState('');
-    const [takenSubjects, setTakenSubjects] = useState('');
+    const [selectedClass, setSelectedClass] = useState<string>('');
+    const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
     const [isEditing, setIsEditing] = useState(false);
+    const [availableSubjects, setAvailableSubjects] = useState<string[]>([]);
 
 
   useEffect(() => {
@@ -50,11 +117,12 @@ export default function Profile() {
       setIsSetupComplete(true);
     }
           if (storedClass) {
-              setUserClass(storedClass);
+              setSelectedClass(storedClass);
+               setAvailableSubjects(classes.find((cls) => cls.value === storedClass)?.subjects || []);
           }
 
           if (storedSubjects) {
-              setTakenSubjects(storedSubjects);
+              setSelectedSubjects(storedSubjects.split(','));
           }
   }, []);
 
@@ -62,8 +130,8 @@ export default function Profile() {
     localStorage.setItem('userName', name);
     localStorage.setItem('userProfilePicture', profilePicture || selectedImage || PROFILE_PICTURES[0]); // Default to first image if none selected
     localStorage.setItem('isSetupComplete', 'true');
-      localStorage.setItem('userClass', userClass);
-      localStorage.setItem('userSubjects', takenSubjects);
+      localStorage.setItem('userClass', selectedClass);
+      localStorage.setItem('userSubjects', selectedSubjects.join(','));
     setIsSetupComplete(true);
     setIsEditing(false);
   };
@@ -97,6 +165,25 @@ export default function Profile() {
         setIsEditing(true);
     };
 
+    const handleClassChange = (classValue: string) => {
+        setSelectedClass(classValue);
+        localStorage.setItem('userClass', classValue);
+
+        const selectedClassSubjects = classes.find(cls => cls.value === classValue)?.subjects || [];
+        setAvailableSubjects(selectedClassSubjects);
+        setSelectedSubjects([]); // Clear selected subjects when class changes
+    };
+
+    const handleSubjectChange = (subject: string) => {
+        setSelectedSubjects(prevSubjects => {
+            if (prevSubjects.includes(subject)) {
+                return prevSubjects.filter(s => s !== subject);
+            } else {
+                return [...prevSubjects, subject];
+            }
+        });
+    };
+
   if (!isSetupComplete || isEditing) {
     return (
       <div className="flex items-center justify-center h-full p-4">
@@ -121,25 +208,46 @@ export default function Profile() {
                                   <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                       Class
                                   </label>
-                                  <Input
-                                      type="text"
-                                      placeholder="Enter your class (e.g., 10th Grade)"
-                                      value={userClass}
-                                      onChange={(e) => setUserClass(e.target.value)}
-                                  />
+                                  <Select onValueChange={handleClassChange} defaultValue={selectedClass}>
+                                      <SelectTrigger className="w-full">
+                                          <SelectValue placeholder="Select a class" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                          {classes.map((cls) => (
+                                              <SelectItem key={cls.value} value={cls.value}>
+                                                  {cls.label}
+                                              </SelectItem>
+                                          ))}
+                                      </SelectContent>
+                                  </Select>
                               </div>
 
-                              <div>
-                                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                      Taken Subjects
-                                  </label>
-                                  <Input
-                                      type="text"
-                                      placeholder="Enter subjects you've taken (e.g., Math, Science)"
-                                      value={takenSubjects}
-                                      onChange={(e) => setTakenSubjects(e.target.value)}
-                                  />
-                              </div>
+            {selectedClass && (
+                <div>
+                    <Label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        Taken Subjects
+                    </Label>
+                    <div className="grid grid-cols-2 gap-2">
+                        {availableSubjects.map((subject) => (
+                            <div key={subject} className="flex items-center space-x-2">
+                                <Input
+                                    type="checkbox"
+                                    id={subject}
+                                    value={subject}
+                                    checked={selectedSubjects.includes(subject)}
+                                    onChange={() => handleSubjectChange(subject)}
+                                />
+                                <label
+                                    htmlFor={subject}
+                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                    {subject}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <div>
               <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
@@ -230,14 +338,14 @@ export default function Profile() {
                               <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                   Class:
                               </label>
-                              <p>{userClass}</p>
+                              <p>{classes.find(cls => cls.value === selectedClass)?.label}</p>
                           </div>
 
                           <div>
                               <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                   Taken Subjects:
                               </label>
-                              <p>{takenSubjects}</p>
+                              <p>{selectedSubjects.join(', ')}</p>
                           </div>
 
           
@@ -250,7 +358,3 @@ export default function Profile() {
     </div>
   );
 }
-
-
-
-
