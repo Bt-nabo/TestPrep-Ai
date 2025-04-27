@@ -11,24 +11,55 @@ import {cn} from "@/lib/utils";
 
 export default function Profile() {
   const [isSetupComplete, setIsSetupComplete] = useState(false);
-  const [name, setName] = useState('Navneet'); // Default name
-  const [progressTalk, setProgressTalk] = useState(70);
-  const [progressRead, setProgressRead] = useState(30);
+  const [name, setName] = useState(''); // Changed default name to empty string
   const [points, setPoints] = useState(20);
   const [isMonet, setIsMonet] = useState(false); // Track if monet theme is active
 
   useEffect(() => {
     const storedName = localStorage.getItem('userName');
+    const setupStatus = localStorage.getItem('isSetupComplete');
+
     if (storedName) {
       setName(storedName);
+    }
+
+    if (setupStatus === 'true') {
       setIsSetupComplete(true);
     }
   }, []);
 
   const handleSetupComplete = () => {
     localStorage.setItem('userName', name);
+    localStorage.setItem('isSetupComplete', 'true');
     setIsSetupComplete(true);
   };
+
+  if (!isSetupComplete) {
+    return (
+      <div className="flex items-center justify-center h-full p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="flex flex-col items-center">
+            <h2 className="text-2xl font-semibold">Welcome!</h2>
+            <p className="text-muted-foreground">Please set up your profile.</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Your Name
+              </label>
+              <Input
+                type="text"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <Button onClick={handleSetupComplete}>Complete Setup</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center h-full p-4">
@@ -36,7 +67,7 @@ export default function Profile() {
         <CardHeader className="flex flex-col items-center">
           <Avatar className="w-32 h-32 mb-4">
             <AvatarImage src="https://picsum.photos/id/237/300/300" alt="Profile Picture" />
-            <AvatarFallback>NN</AvatarFallback>
+            <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <h2 className="text-2xl font-semibold">Welcome back, {name}!</h2>
         </CardHeader>
@@ -53,5 +84,4 @@ export default function Profile() {
     </div>
   );
 }
-
 
