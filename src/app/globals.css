@@ -111,6 +111,41 @@ body {
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+   .monet {
+    --background: 252 63% 96%;
+    --foreground: 263 33% 19%;
+    --card: 252 63% 96%;
+    --card-foreground: 263 33% 19%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 263 33% 19%;
+    --primary: 226 66% 55%;
+    --primary-foreground: 354 84% 97%;
+    --secondary: 264 39% 91%;
+    --secondary-foreground: 263 33% 19%;
+    --muted: 264 39% 91%;
+    --muted-foreground: 257 23% 53%;
+    --accent: 226 66% 55%;
+    --accent-foreground: 354 84% 97%;
+    --destructive: 0 73% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 257 31% 77%;
+    --input: 257 31% 77%;
+    --ring: 261 43% 32%;
+    --chart-1: 228 92% 81%;
+    --chart-2: 26 78% 57%;
+    --chart-3: 186 63% 45%;
+    --chart-4: 326 58% 73%;
+    --chart-5: 213 77% 46%;
+    --radius: 0.5rem;
+    --sidebar-background: 264 39% 91%;
+    --sidebar-foreground: 257 23% 53%;
+    --sidebar-primary: 261 43% 32%;
+    --sidebar-primary-foreground: 354 84% 97%;
+    --sidebar-accent: 264 39% 91%;
+    --sidebar-accent-foreground: 257 23% 53%;
+    --sidebar-border: 257 31% 77%;
+    --sidebar-ring: 261 43% 32%;
+  }
 }
 
 @layer base {
