@@ -83,9 +83,10 @@ export default function Home() {
           const result = await mammoth.extractRawText({ arrayBuffer: buffer });
           fileContent = result.value;
         }
-         if (fileTypeExtension === ".rtf") {
+        if (fileTypeExtension === ".rtf") {
              // @ts-ignore
-          fileContent = await processRTF(fileDataUri)
+          //fileContent = await processRTF(fileDataUri)
+            fileContent = fileDataUri; // Placeholder for RTF processing
           }
 
 
@@ -387,3 +388,4 @@ export default function Home() {
     </div>
   );
 }
+
