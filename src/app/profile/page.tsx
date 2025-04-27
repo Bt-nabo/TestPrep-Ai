@@ -27,6 +27,7 @@ export default function Profile() {
     const [showChangePictureOptions, setShowChangePictureOptions] = useState(false);
     const [userClass, setUserClass] = useState('');
     const [takenSubjects, setTakenSubjects] = useState('');
+    const [isEditing, setIsEditing] = useState(false);
 
 
   useEffect(() => {
@@ -64,6 +65,7 @@ export default function Profile() {
       localStorage.setItem('userClass', userClass);
       localStorage.setItem('userSubjects', takenSubjects);
     setIsSetupComplete(true);
+    setIsEditing(false);
   };
 
   const handleProfilePictureSelect = (picture: string) => {
@@ -91,12 +93,16 @@ export default function Profile() {
         setShowChangePictureOptions(!showChangePictureOptions);
     };
 
-  if (!isSetupComplete) {
+    const handleEditProfile = () => {
+        setIsEditing(true);
+    };
+
+  if (!isSetupComplete || isEditing) {
     return (
       <div className="flex items-center justify-center h-full p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="flex flex-col items-center">
-            <h2 className="text-2xl font-semibold">Welcome!</h2>
+            <h2 className="text-2xl font-semibold">{isEditing ? "Edit Profile" : "Welcome!"}</h2>
             <p className="text-muted-foreground">Please set up your profile.</p>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -178,7 +184,7 @@ export default function Profile() {
     <div className="flex items-center justify-center h-full p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="flex flex-col items-center">
-             <Avatar className="w-32 h-32 mb-4 cursor-pointer" onClick={toggleChangePictureOptions}>
+             <Avatar className="w-32 h-32 mb-4 cursor-pointer" onClick={handleEditProfile}>
                 <AvatarImage src={profilePicture || selectedImage || PROFILE_PICTURES[0]} alt="Profile Picture" className="rounded-none" />
                 <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
@@ -244,6 +250,7 @@ export default function Profile() {
     </div>
   );
 }
+
 
 
 
