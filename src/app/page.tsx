@@ -192,7 +192,7 @@ export default function Home() {
     };
 
     reader.readAsDataURL(file);
-  }, [parseQuestions, sequenceQuestions, detectedFileType, mcqOnly]);
+  }, [parseQuestions, sequenceQuestions, mcqOnly]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -213,7 +213,7 @@ export default function Home() {
     const currentQuestion = questions[currentQuestionIndex];
     if (currentQuestion && userAnswer.trim() !== "") {
 
-      const correctAnswer = question?.answer?.toLowerCase().trim() || "";
+      const correctAnswer = questions[currentQuestionIndex]?.answer?.toLowerCase().trim() || "";
       const userAnswerLower = userAnswer.toLowerCase().trim();
 
       // Calculate Levenshtein distance
@@ -621,6 +621,11 @@ export default function Home() {
                               value={userName}
                               onChange={updateUserName}
                               className="mb-4"
+                              onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                  }
+                              }}
                           />
                       </div>
                   )}
@@ -632,5 +637,3 @@ export default function Home() {
     </div>
   );
 }
-
-
