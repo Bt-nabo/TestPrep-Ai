@@ -7,8 +7,8 @@ import Link from 'next/link';
 import {DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem} from "@/components/ui/dropdown-menu";
 import {Button} from "@/components/ui/button";
 import {useState, useEffect} from "react";
-import {cn} from "@/lib/utils";
 import {User, BarChart} from "lucide-react";
+import {cn} from "@/lib/utils";
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -20,6 +20,7 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
+// Removed metadata from here as it's not allowed in client components
 // export const metadata: Metadata = {
 //   title: 'TestPrep AI',
 //   description: 'Ace your exams with AI-powered test preparation.',
@@ -75,7 +76,7 @@ export default function RootLayout({
         <header className="bg-secondary text-secondary-foreground py-4 px-6 flex justify-between items-center">
           <Link href="/" className="text-lg font-semibold">TestPrep AI</Link>
           <nav className="flex items-center space-x-6">
-          <DropdownMenu>
+            <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline">Theme</Button>
               </DropdownMenuTrigger>
@@ -90,23 +91,27 @@ export default function RootLayout({
         </header>
         <div style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
           {children}
-              <div className="fixed bottom-4 left-4 flex space-x-4">
+        </div>
+
+          <div className="fixed bottom-4 left-4 w-full flex justify-around">
+              <div className="w-1/2 pr-2">
                   <Link href="/profile" className="transition-colors hover:text-primary">
-                      <Button variant="ghost" className="bg-transparent text-sm font-medium opacity-75 hover:opacity-100">
+                      <Button variant="ghost" className="bg-gray-200/20 backdrop-blur-sm text-sm font-medium opacity-75 hover:opacity-100 w-full">
                           <User className="mr-2 h-4 w-4" />
                           Profile
                       </Button>
                   </Link>
+              </div>
+              <div className="w-1/2 pl-2">
                   <Link href="/score-history" className="transition-colors hover:text-primary">
-                      <Button variant="ghost" className="bg-transparent text-sm font-medium opacity-75 hover:opacity-100">
+                      <Button variant="ghost" className="bg-gray-200/20 backdrop-blur-sm text-sm font-medium opacity-75 hover:opacity-100 w-full">
                           <BarChart className="mr-2 h-4 w-4" />
                           Score History
                       </Button>
                   </Link>
               </div>
-        </div>
+          </div>
       </body>
     </html>
   );
 }
-
