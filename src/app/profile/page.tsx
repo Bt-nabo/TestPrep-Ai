@@ -25,12 +25,17 @@ export default function Profile() {
   const [isMonet, setIsMonet] = useState(false); // Track if monet theme is active
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [showChangePictureOptions, setShowChangePictureOptions] = useState(false);
+    const [userClass, setUserClass] = useState('');
+    const [takenSubjects, setTakenSubjects] = useState('');
 
 
   useEffect(() => {
     const storedName = localStorage.getItem('userName');
     const storedProfilePicture = localStorage.getItem('userProfilePicture');
     const setupStatus = localStorage.getItem('isSetupComplete');
+    const storedClass = localStorage.getItem('userClass');
+    const storedSubjects = localStorage.getItem('userSubjects');
+
 
     if (storedName) {
       setName(storedName);
@@ -43,12 +48,21 @@ export default function Profile() {
     if (setupStatus === 'true') {
       setIsSetupComplete(true);
     }
+          if (storedClass) {
+              setUserClass(storedClass);
+          }
+
+          if (storedSubjects) {
+              setTakenSubjects(storedSubjects);
+          }
   }, []);
 
   const handleSetupComplete = () => {
     localStorage.setItem('userName', name);
     localStorage.setItem('userProfilePicture', profilePicture || selectedImage || PROFILE_PICTURES[0]); // Default to first image if none selected
     localStorage.setItem('isSetupComplete', 'true');
+      localStorage.setItem('userClass', userClass);
+      localStorage.setItem('userSubjects', takenSubjects);
     setIsSetupComplete(true);
   };
 
@@ -97,6 +111,29 @@ export default function Profile() {
                 onChange={(e) => setName(e.target.value)}
               />
             </div>
+                              <div>
+                                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                      Class
+                                  </label>
+                                  <Input
+                                      type="text"
+                                      placeholder="Enter your class (e.g., 10th Grade)"
+                                      value={userClass}
+                                      onChange={(e) => setUserClass(e.target.value)}
+                                  />
+                              </div>
+
+                              <div>
+                                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                      Taken Subjects
+                                  </label>
+                                  <Input
+                                      type="text"
+                                      placeholder="Enter subjects you've taken (e.g., Math, Science)"
+                                      value={takenSubjects}
+                                      onChange={(e) => setTakenSubjects(e.target.value)}
+                                  />
+                              </div>
 
             <div>
               <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
@@ -183,6 +220,19 @@ export default function Profile() {
         </CardHeader>
         <CardContent className="space-y-4">
           
+                          <div>
+                              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                  Class:
+                              </label>
+                              <p>{userClass}</p>
+                          </div>
+
+                          <div>
+                              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                  Taken Subjects:
+                              </label>
+                              <p>{takenSubjects}</p>
+                          </div>
 
           
 
