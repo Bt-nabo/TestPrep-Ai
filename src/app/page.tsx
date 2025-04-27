@@ -34,7 +34,7 @@ function levenshteinDistance(a: string, b: string): number {
 
   // Fill in the matrix
   for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; j <= a.length; j++) {
+    for (let j = 1; i <= a.length; j++) {
       if (b.charAt(i - 1) === a.charAt(j - 1)) {
         matrix[i][j] = matrix[i - 1][j - 1];
       } else {
@@ -80,8 +80,8 @@ export default function Home() {
 
     const generateMonetColor = () => {
         const hue = Math.floor(Math.random() * 360);
-        const saturation = Math.floor(Math.random() * 50) + 50; // Ensure saturation is high
-        const lightness = Math.floor(Math.random() * 30) + 70;   // Ensure lightness is high
+        const saturation = Math.floor(Math.random() * 20) + 20; // Ensure saturation is low to make the color lighter
+        const lightness = Math.floor(Math.random() * 20) + 80;   // Ensure lightness is high
         setMonetBackgroundColor(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
     };
 
@@ -186,7 +186,7 @@ export default function Home() {
     };
 
     reader.readAsDataURL(file);
-  }, [parseQuestions, sequenceQuestions]);
+  }, [parseQuestions, sequenceQuestions, detectedFileType]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -274,24 +274,19 @@ export default function Home() {
     // Implements submit test logic here, e.g., send data to server
     // Store user's answer and if it's correct
 
-    const newResults = await Promise.all(questions.map((question, index) => {
-      const correctAnswer = question?.answer?.toLowerCase().trim() || "";
-      const userAnswerLower = updatedAnswers[index]?.toLowerCase().trim() || "";
-      const distance = levenshteinDistance(userAnswerLower, correctAnswer);
-      const threshold = Math.max(3, Math.floor(correctAnswer.length * 0.2));
-      let isCorrect = distance <= threshold;
-
-      //if the question is not multiple choice and the answer is incorrect, we will try to ask Gemini to see if the answer is correct or not
-      if (!question?.isMultipleChoice && !isCorrect) {
-
-      }
-      return {
-        question: question.question,
-        userAnswer: updatedAnswers[index] || "",
-        correctAnswer: question.answer,
-        isCorrect: distance <= threshold,
-      };
-    }));
+    const newResults = questions.map((question, index) => {
+         const correctAnswer = question?.answer?.toLowerCase().trim() || "";
+         const userAnswerLower = updatedAnswers[index]?.toLowerCase().trim() || "";
+         const distance = levenshteinDistance(userAnswerLower, correctAnswer);
+          const threshold = Math.max(3, Math.floor(correctAnswer.length * 0.2));
+          let isCorrect = distance <= threshold;
+          return {
+            question: question.question,
+            userAnswer: updatedAnswers[index] || "",
+            correctAnswer: question.answer,
+            isCorrect: distance <= threshold,
+         };
+      });
 
     setResults(newResults);
     setShowResults(true); // Show the results
