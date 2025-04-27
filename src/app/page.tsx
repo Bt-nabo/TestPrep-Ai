@@ -201,7 +201,7 @@ export default function Home() {
       if (distance <= threshold) {
         setFeedback("Correct!");
       } else {
-        setFeedback(`Incorrect. The correct answer is: ${currentQuestion.answer}`);
+        setFeedback(`Incorrect.`);
       }
     } else {
       setFeedback("Please provide an answer.");
@@ -482,7 +482,7 @@ export default function Home() {
                 <h3 className="text-md font-semibold mb-2">Your Results:</h3>
                 {results.map((result, index) => {
                   let correctnessMessage = result.isCorrect ? "Correct" : "Incorrect";
-                  if (!result.isCorrect) {
+                  if (!result.isCorrect && question.isMultipleChoice) {
                     correctnessMessage += ` (Correct answer: ${result.correctAnswer})`;
                   }
                   return (
@@ -493,9 +493,13 @@ export default function Home() {
                       <p>
                         Your Answer: {result.userAnswer}
                       </p>
-                      <p>
-                        Correct Answer: {result.correctAnswer}
-                      </p>
+                      
+                      {!question.isMultipleChoice && (
+                        <p>
+                           Correct Answer: {result.correctAnswer}
+                        </p>
+                      )}
+                      
                       <p className={result.isCorrect ? "text-green-500" : "text-red-500"}>
                         {correctnessMessage}
                       </p>
@@ -527,3 +531,4 @@ export default function Home() {
     </div>
   );
 }
+
