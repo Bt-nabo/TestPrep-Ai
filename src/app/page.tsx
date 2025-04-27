@@ -508,7 +508,7 @@ export default function Home() {
                 {results.map((result, index) => {
                   const question = questions[index]; // Get the corresponding question
                   let correctnessMessage = result.isCorrect ? "Correct" : "Incorrect";
-                  if (!result.isCorrect && question?.isMultipleChoice) {
+                   if (!result.isCorrect && question?.isMultipleChoice) {
                     correctnessMessage += ` (Correct answer: ${result.correctAnswer})`;
                   }
                   return (
@@ -517,7 +517,7 @@ export default function Home() {
                         {index + 1}. {result.question}
                       </p>
                       <p>
-                        Your Answer: {result.userAnswer}
+                        Your Answer: {result.userAnswer || "No answer provided"}
                       </p>
                       
                       {!question?.isMultipleChoice && (
