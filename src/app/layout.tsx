@@ -8,6 +8,7 @@ import {DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem
 import {Button} from "@/components/ui/button";
 import {useState, useEffect} from "react";
 import {cn} from "@/lib/utils";
+import {User, BarChart} from "lucide-react";
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -89,14 +90,20 @@ export default function RootLayout({
         </header>
         <div style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
           {children}
-                <div className="fixed bottom-4 left-4 flex space-x-4">
-                    <Link href="/profile">
-                        <Button variant="ghost">Profile</Button>
-                    </Link>
-                    <Link href="/score-history">
-                        <Button variant="ghost">Score History</Button>
-                    </Link>
-                </div>
+              <div className="fixed bottom-4 left-4 flex space-x-4">
+                  <Link href="/profile" className="transition-colors hover:text-primary">
+                      <Button variant="ghost" className="bg-transparent text-sm font-medium opacity-75 hover:opacity-100">
+                          <User className="mr-2 h-4 w-4" />
+                          Profile
+                      </Button>
+                  </Link>
+                  <Link href="/score-history" className="transition-colors hover:text-primary">
+                      <Button variant="ghost" className="bg-transparent text-sm font-medium opacity-75 hover:opacity-100">
+                          <BarChart className="mr-2 h-4 w-4" />
+                          Score History
+                      </Button>
+                  </Link>
+              </div>
         </div>
       </body>
     </html>
