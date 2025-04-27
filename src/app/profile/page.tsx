@@ -23,6 +23,7 @@ export default function Profile() {
   const [profilePicture, setProfilePicture] = useState('');
   const [points, setPoints] = useState(20);
   const [isMonet, setIsMonet] = useState(false); // Track if monet theme is active
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const storedName = localStorage.getItem('userName');
@@ -44,7 +45,7 @@ export default function Profile() {
 
   const handleSetupComplete = () => {
     localStorage.setItem('userName', name);
-    localStorage.setItem('userProfilePicture', profilePicture || PROFILE_PICTURES[0]); // Default to first image if none selected
+    localStorage.setItem('userProfilePicture', profilePicture || selectedImage || PROFILE_PICTURES[0]); // Default to first image if none selected
     localStorage.setItem('isSetupComplete', 'true');
     setIsSetupComplete(true);
   };
@@ -52,6 +53,18 @@ export default function Profile() {
   const handleProfilePictureSelect = (picture: string) => {
     setProfilePicture(picture);
   };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setSelectedImage(reader.result as string);
+                setProfilePicture(''); // Clear other selections
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
   if (!isSetupComplete) {
     return (
@@ -94,6 +107,18 @@ export default function Profile() {
               </div>
             </div>
 
+            <div>
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Upload from Gallery
+                </label>
+                <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="w-full"
+                />
+            </div>
+
             <Button onClick={handleSetupComplete}>Complete Setup</Button>
           </CardContent>
         </Card>
@@ -106,7 +131,7 @@ export default function Profile() {
       <Card className="w-full max-w-md">
         <CardHeader className="flex flex-col items-center">
           <Avatar className="w-32 h-32 mb-4">
-            <AvatarImage src={profilePicture || PROFILE_PICTURES[0]} alt="Profile Picture" />
+            <AvatarImage src={profilePicture || selectedImage || PROFILE_PICTURES[0]} alt="Profile Picture" />
             <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <h2 className="text-2xl font-semibold">Welcome back, {name}!</h2>
@@ -124,3 +149,4 @@ export default function Profile() {
     </div>
   );
 }
+
