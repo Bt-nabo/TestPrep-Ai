@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { parseQuestions } from "@/ai/flows/parse-questions";
 import { sequenceQuestions } from "@/ai/flows/sequence-questions";
+import { generateQuizQuestions } from "@/ai/flows/generate-quiz-questions"; // Import the new flow
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Loader2 } from "lucide-react";
 import { fileTypeFromBuffer } from 'file-type';
@@ -49,6 +50,8 @@ export default function Home() {
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     setIsLoading(true);
+    setQuestions([]); // Clear existing questions when uploading a file
+    setTestComplete(false); // Reset test completion status
 
     const reader = new FileReader();
     reader.onload = async () => {
@@ -126,7 +129,7 @@ export default function Home() {
     };
 
     reader.readAsDataURL(file);
-  }, [parseQuestions, sequenceQuestions, detectedFileType]);
+  }, [parseQuestions, sequenceQuestions]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -140,7 +143,7 @@ export default function Home() {
 
   const handleAnswerSubmit = () => {
     if (questions.length === 0) {
-      setFeedback("No questions available. Please upload a file.");
+      setFeedback("No questions available. Please upload a file or generate a quiz.");
       return;
     }
 
@@ -188,6 +191,31 @@ export default function Home() {
     // Implement submit test logic here, e.g., send data to server
     alert("Submit test functionality not implemented yet.");
   };
+
+  const handleGenerateQuiz = async () => {
+    setIsLoading(true);
+    setQuestions([]); // Clear any existing questions
+
+    try {
+      const generatedQuestions = await generateQuizQuestions({
+        quizClass: quizClass,
+        quizSubject: quizSubject,
+        quizTopic: quizTopic,
+        numQuestions: numQuestions,
+      });
+
+      setQuestions(generatedQuestions);
+      setCurrentQuestionIndex(0);
+      setFeedback(null);
+      setTestComplete(false);
+    } catch (error: any) {
+      console.error("Error generating quiz:", error);
+      setFeedback(`Failed to generate quiz: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background">
@@ -290,8 +318,15 @@ export default function Home() {
                 onChange={(e) => setNumQuestions(parseInt(e.target.value))}
               />
             </div>
-            <Button onClick={() => alert('Generate Quiz functionality not implemented yet.')}>
-              Generate Quiz
+            <Button onClick={handleGenerateQuiz} disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                "Generate Quiz"
+              )}
             </Button>
           </CardContent>
         </Card>
@@ -388,4 +423,3 @@ export default function Home() {
     </div>
   );
 }
-
