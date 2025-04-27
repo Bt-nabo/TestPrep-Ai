@@ -261,7 +261,7 @@ export default function Home() {
     // Store user's answer and if it's correct
 
     const newResults = questions.map((question, index) => {
-         const correctAnswer = question.answer.toLowerCase().trim();
+         const correctAnswer = question?.answer?.toLowerCase().trim() || "";
          const userAnswerLower = updatedAnswers[index]?.toLowerCase().trim() || "";
          const distance = levenshteinDistance(userAnswerLower, correctAnswer);
          const threshold = Math.max(3, Math.floor(correctAnswer.length * 0.2));
