@@ -10,6 +10,10 @@ import { parseQuestions } from "@/ai/flows/parse-questions";
 import { sequenceQuestions } from "@/ai/flows/sequence-questions";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Loader2 } from "lucide-react";
+import * as fileType from 'file-type';
+import * as mammoth from 'mammoth';
+
+export type FileType = ".txt" | ".pdf" | ".rtf" | ".docx";
 
 export default function Home() {
   const [questions, setQuestions] = useState<
@@ -18,11 +22,16 @@ export default function Home() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [fileType, setFileType] = useState<".txt" | ".pdf">(".txt");
+  const [detectedFileType, setDetectedFileType] = useState<FileType | null>(null);
   const [theme, setTheme] = useState<"light" | "dark" | "fully-black">("light");
   const [testComplete, setTestComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Quiz Generation State
+  const [quizClass, setQuizClass] = useState("");
+  const [quizSubject, setQuizSubject] = useState("");
+  const [quizTopic, setQuizTopic] = useState("");
+  const [numQuestions, setNumQuestions] = useState(5); // Default to 5 questions
 
   useEffect(() => {
     if (theme === "fully-black") {
@@ -37,19 +46,52 @@ export default function Home() {
     }
   }, [theme]);
 
-
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
-    setFileType(file.name.endsWith(".pdf") ? ".pdf" : ".txt");
-    const reader = new FileReader();
+    setIsLoading(true);
 
+    const reader = new FileReader();
     reader.onload = async () => {
       const fileDataUri = reader.result as string;
-      setIsLoading(true);
+
       try {
+        let detectedType = await fileType.fromBuffer(await acceptedFiles[0].arrayBuffer());
+        let fileTypeExtension: FileType | null = null;
+
+        if (detectedType) {
+          fileTypeExtension = `.${detectedType.ext}` as FileType;
+        } else {
+          // Fallback: Determine file type based on the extension
+          const fileNameParts = file.name.split('.');
+          const fileExtension = fileNameParts.pop()?.toLowerCase();
+
+          if (fileExtension === 'txt' || fileExtension === 'pdf' || fileExtension === 'rtf' || fileExtension === 'docx') {
+            fileTypeExtension = `.${fileExtension}` as FileType;
+          } else {
+            setFeedback("Unable to determine file type");
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        setDetectedFileType(fileTypeExtension);
+
+        let fileContent = fileDataUri;
+
+        if (fileTypeExtension === ".docx") {
+          const buffer = await acceptedFiles[0].arrayBuffer();
+          const result = await mammoth.extractRawText({ arrayBuffer: buffer });
+          fileContent = result.value;
+        }
+         if (fileTypeExtension === ".rtf") {
+             // @ts-ignore
+          fileContent = await processRTF(fileDataUri)
+          }
+
+
         const parsedQuestions = await parseQuestions({
-          fileDataUri: fileDataUri,
-          fileType: fileType,
+          fileDataUri: fileContent,
+          fileType: fileTypeExtension,
         });
 
         // Sequence the questions using GenAI
@@ -83,9 +125,17 @@ export default function Home() {
     };
 
     reader.readAsDataURL(file);
-  }, [fileType]);
+  }, [parseQuestions, sequenceQuestions]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'text/plain': ['.txt', '.rtf'],
+      'application/pdf': ['.pdf'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+    }
+  });
+
 
   const handleAnswerSubmit = () => {
     if (questions.length === 0) {
@@ -152,12 +202,13 @@ export default function Home() {
       </DropdownMenu>
       <h1 className="text-4xl font-bold mb-6 text-foreground">TestPrep AI</h1>
 
-      {questions.length === 0 ? (
+      <div className="flex w-full max-w-4xl justify-center space-x-4">
+        {/* Upload Questions Section */}
         <Card className="w-full max-w-md space-y-4">
           <CardHeader>
             <h2 className="text-lg font-semibold">Upload Questions</h2>
             <p className="text-sm text-muted-foreground">
-              Upload a .txt or .pdf file containing questions and answers.
+              Upload a .txt, .pdf, .rtf, or .docx file containing questions and answers.
             </p>
           </CardHeader>
           <CardContent>
@@ -184,7 +235,68 @@ export default function Home() {
             {feedback && <p className="text-sm mt-2">{feedback}</p>}
           </CardContent>
         </Card>
-      ) : !testComplete ? (
+
+        {/* Quiz Asking Agent Section */}
+        <Card className="w-full max-w-md space-y-4">
+          <CardHeader>
+            <h2 className="text-lg font-semibold">Quiz Asking Agent</h2>
+            <p className="text-sm text-muted-foreground">
+              Generate questions based on class, subject, and topic.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Class
+              </label>
+              <Input
+                type="text"
+                placeholder="e.g., Math 101"
+                value={quizClass}
+                onChange={(e) => setQuizClass(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Subject
+              </label>
+              <Input
+                type="text"
+                placeholder="e.g., Algebra"
+                value={quizSubject}
+                onChange={(e) => setQuizSubject(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Chapter/Topic
+              </label>
+              <Input
+                type="text"
+                placeholder="e.g., Linear Equations"
+                value={quizTopic}
+                onChange={(e) => setQuizTopic(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Number of Questions
+              </label>
+              <Input
+                type="number"
+                placeholder="e.g., 10"
+                value={numQuestions.toString()}
+                onChange={(e) => setNumQuestions(parseInt(e.target.value))}
+              />
+            </div>
+            <Button onClick={() => alert('Generate Quiz functionality not implemented yet.')}>
+              Generate Quiz
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {questions.length === 0 ? null : !testComplete ? (
         <Card className="w-full max-w-md mt-8 space-y-4">
           <CardHeader>
             <h2 className="text-lg font-semibold">
