@@ -312,7 +312,7 @@ export default function Home() {
 
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background">
+    <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background px-4">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline">Theme</Button>
@@ -327,7 +327,7 @@ export default function Home() {
 
       <div className="flex flex-col w-full max-w-4xl items-center">
         {/* Upload Questions Section */}
-        <Card className="w-full max-w-md space-y-4">
+        <Card className="w-full max-w-md space-y-4 mb-8">
           <CardHeader>
             <h2 className="text-lg font-semibold">Upload Questions</h2>
             <p className="text-sm text-muted-foreground">
@@ -360,7 +360,7 @@ export default function Home() {
         </Card>
 
         {/* Quiz Asking Agent Section */}
-        <Card className="w-full max-w-md mt-8 space-y-4">
+        <Card className="w-full max-w-md space-y-4">
           <CardHeader>
             <h2 className="text-lg font-semibold">Quiz Asking Agent</h2>
             <p className="text-sm text-muted-foreground">
