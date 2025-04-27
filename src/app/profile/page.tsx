@@ -24,62 +24,62 @@ const classes = [
   {
     value: "1",
     label: "Class 1",
-    subjects: ["English", "Mathematics", "Science"],
+    subjects: ["English", "Mathematics"],
   },
   {
     value: "2",
     label: "Class 2",
-    subjects: ["English", "Mathematics", "Science"],
+    subjects: ["English", "Mathematics"],
   },
   {
     value: "3",
     label: "Class 3",
-    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+    subjects: ["English", "Mathematics", "Science"],
   },
   {
     value: "4",
     label: "Class 4",
-    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+    subjects: ["English", "Mathematics", "Science"],
   },
   {
     value: "5",
     label: "Class 5",
-    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+    subjects: ["English", "Mathematics", "Science", "History", "Geography"],
   },
   {
     value: "6",
     label: "Class 6",
-    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+    subjects: ["English", "Mathematics", "Science", "History", "Geography"],
   },
   {
     value: "7",
     label: "Class 7",
-    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+    subjects: ["English", "Mathematics", "Science", "History", "Geography"],
   },
   {
     value: "8",
     label: "Class 8",
-    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+    subjects: ["English", "Mathematics", "Science", "History", "Geography"],
   },
   {
     value: "9",
     label: "Class 9",
-    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+    subjects: ["English", "Mathematics", "Science", "History", "Geography", "Civics"],
   },
   {
     value: "10",
     label: "Class 10",
-    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+    subjects: ["Physics", "Chemistry", "Biology", "Mathematics", "History", "Civics", "Geography", "English", "Hindi"],
   },
   {
     value: "11",
     label: "Class 11",
-    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+    subjects: ["Physics", "Chemistry", "Mathematics", "Biology", "English"],
   },
   {
     value: "12",
     label: "Class 12",
-    subjects: ["English", "Mathematics", "Science", "Social Studies"],
+    subjects: ["Physics", "Chemistry", "Mathematics", "Biology", "English"],
   },
 ];
 
@@ -358,3 +358,4 @@ export default function Profile() {
     </div>
   );
 }
+
