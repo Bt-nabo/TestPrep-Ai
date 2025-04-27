@@ -10,7 +10,7 @@ import { parseQuestions } from "@/ai/flows/parse-questions";
 import { sequenceQuestions } from "@/ai/flows/sequence-questions";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Loader2 } from "lucide-react";
-import * as fileType from 'file-type';
+import { fileTypeFromBuffer } from 'file-type';
 import * as mammoth from 'mammoth';
 
 export type FileType = ".txt" | ".pdf" | ".rtf" | ".docx";
@@ -55,7 +55,7 @@ export default function Home() {
       const fileDataUri = reader.result as string;
 
       try {
-        let detectedType = await fileType.fromBuffer(await acceptedFiles[0].arrayBuffer());
+        let detectedType = await fileTypeFromBuffer(await acceptedFiles[0].arrayBuffer());
         let fileTypeExtension: FileType | null = null;
 
         if (detectedType) {
@@ -126,7 +126,7 @@ export default function Home() {
     };
 
     reader.readAsDataURL(file);
-  }, [parseQuestions, sequenceQuestions]);
+  }, [parseQuestions, sequenceQuestions, detectedFileType]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
