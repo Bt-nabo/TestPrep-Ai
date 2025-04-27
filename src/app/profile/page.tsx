@@ -47,17 +47,11 @@ export default function Profile() {
 
           
 
-          <div className="flex items-center justify-between">
-            
-            <span className="font-semibold">{points} Points</span>
-          </div>
-
           
         </CardContent>
       </Card>
     </div>
   );
 }
-
 
 
