@@ -73,12 +73,12 @@ export default function RootLayout({
         <header className="bg-secondary text-secondary-foreground py-4 px-6 flex justify-between items-center">
           <Link href="/" className="text-lg font-semibold">TestPrep AI</Link>
           <nav className="flex items-center space-x-6">
-            <Link href="/profile">
-              <Button variant="ghost">Profile</Button>
-            </Link>
-            <Link href="/score-history">
-              <Button variant="ghost">Score History</Button>
-            </Link>
+            <Button asChild variant="ghost">
+              <Link href="/profile">Profile</Link>
+            </Button>
+            <Button asChild variant="ghost">
+              <Link href="/score-history">Score History</Link>
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline">Theme</Button>
@@ -99,4 +99,3 @@ export default function RootLayout({
     </html>
   );
 }
-
