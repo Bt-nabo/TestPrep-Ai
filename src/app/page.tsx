@@ -13,8 +13,41 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { Loader2 } from "lucide-react";
 import { fileTypeFromBuffer } from 'file-type';
 import * as mammoth from 'mammoth';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 
 export type FileType = ".txt" | ".pdf" | ".rtf" | ".docx";
+
+// Function to calculate Levenshtein distance
+function levenshteinDistance(a: string, b: string): number {
+  const matrix: number[][] = [];
+
+  // Initialize the matrix
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  // Fill in the matrix
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // substitution
+          matrix[i][j - 1] + 1, // insertion
+          matrix[i - 1][j] + 1 // deletion
+        );
+      }
+    }
+  }
+
+  return matrix[b.length][a.length];
+}
 
 export default function Home() {
   const [questions, setQuestions] = useState<
@@ -155,10 +188,17 @@ export default function Home() {
 
     const currentQuestion = questions[currentQuestionIndex];
     if (currentQuestion && userAnswer.trim() !== "") {
-      if (
-        currentQuestion.answer.toLowerCase().trim() ===
-        userAnswer.toLowerCase().trim()
-      ) {
+
+      const correctAnswer = currentQuestion.answer.toLowerCase().trim();
+      const userAnswerLower = userAnswer.toLowerCase().trim();
+
+      // Calculate Levenshtein distance
+      const distance = levenshteinDistance(userAnswerLower, correctAnswer);
+
+      // Set a threshold for acceptable distance (adjust as needed)
+      const threshold = Math.max(3, Math.floor(correctAnswer.length * 0.2)); //Dynamic threshold
+
+      if (distance <= threshold) {
         setFeedback("Correct!");
       } else {
         setFeedback(`Incorrect. The correct answer is: ${currentQuestion.answer}`);
@@ -199,11 +239,15 @@ export default function Home() {
     // Store user's answer and if it's correct
 
     const newResults = questions.map((question, index) => {
+         const correctAnswer = question.answer.toLowerCase().trim();
+         const userAnswerLower = userAnswer.toLowerCase().trim();
+         const distance = levenshteinDistance(userAnswerLower, correctAnswer);
+         const threshold = Math.max(3, Math.floor(correctAnswer.length * 0.2));
       return {
         question: question.question,
         userAnswer: userAnswer,
         correctAnswer: question.answer,
-        isCorrect: userAnswer.toLowerCase().trim() === question.answer.toLowerCase().trim(),
+        isCorrect: distance <= threshold,
       };
     });
 
@@ -237,6 +281,10 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleMultipleChoiceAnswer = (option: string) => {
+    setUserAnswer(option);
   };
 
 
@@ -370,22 +418,18 @@ export default function Home() {
                 </p>
                 {questions[currentQuestionIndex].isMultipleChoice &&
                   questions[currentQuestionIndex].options && (
-                    <div className="space-y-2">
-                      {questions[currentQuestionIndex].options!.map((option, index) => (
-                        <div key={index} className="flex items-center space-x-2">
-                          <input
-                            type="radio"
-                            id={`option-${index}`}
-                            name="mcq-option"
-                            value={option}
-                            className="h-4 w-4"
-                          />
-                          <label htmlFor={`option-${index}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                            {option}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
+                     <RadioGroup onValueChange={handleMultipleChoiceAnswer} defaultValue={userAnswer}>
+                      <div className="space-y-2">
+                        {questions[currentQuestionIndex].options!.map((option, index) => (
+                          <div key={index} className="flex items-center space-x-2">
+                            <RadioGroupItem value={option} id={`option-${index}`} className="h-4 w-4" />
+                            <label htmlFor={`option-${index}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                              {option}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </RadioGroup>
                   )}
               </>
             ) : (
@@ -436,22 +480,28 @@ export default function Home() {
             {showResults && results.length > 0 ? (
               <div>
                 <h3 className="text-md font-semibold mb-2">Your Results:</h3>
-                {results.map((result, index) => (
-                  <div key={index} className="mb-4">
-                    <p className="font-medium">
-                      {index + 1}. {result.question}
-                    </p>
-                    <p>
-                      Your Answer: {result.userAnswer}
-                    </p>
-                    <p>
-                      Correct Answer: {result.correctAnswer}
-                    </p>
-                    <p className={result.isCorrect ? "text-green-500" : "text-red-500"}>
-                      {result.isCorrect ? "Correct" : "Incorrect"}
-                    </p>
-                  </div>
-                ))}
+                {results.map((result, index) => {
+                  let correctnessMessage = result.isCorrect ? "Correct" : "Incorrect";
+                  if (!result.isCorrect) {
+                    correctnessMessage += ` (Correct answer: ${result.correctAnswer})`;
+                  }
+                  return (
+                    <div key={index} className="mb-4">
+                      <p className="font-medium">
+                        {index + 1}. {result.question}
+                      </p>
+                      <p>
+                        Your Answer: {result.userAnswer}
+                      </p>
+                      <p>
+                        Correct Answer: {result.correctAnswer}
+                      </p>
+                      <p className={result.isCorrect ? "text-green-500" : "text-red-500"}>
+                        {correctnessMessage}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             ) : null}
             <div className="flex justify-between">
