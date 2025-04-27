@@ -132,8 +132,6 @@ export default function Home() {
           fileContent = result.value;
         }
         if (fileTypeExtension === ".rtf") {
-             // @ts-ignore
-          //fileContent = await processRTF(fileDataUri)
             fileContent = fileDataUri; // Placeholder for RTF processing
           }
 
@@ -186,7 +184,7 @@ export default function Home() {
   });
 
 
-  const handleAnswerSubmit = () => {
+  const handleAnswerSubmit = async () => {
     if (questions.length === 0) {
       setFeedback("No questions available. Please upload a file or generate a quiz.");
       return;
@@ -557,5 +555,3 @@ export default function Home() {
     </div>
   );
 }
-
-
