@@ -40,7 +40,7 @@ function levenshteinDistance(a: string, b: string): number {
         matrix[i][j] = Math.min(
           matrix[i - 1][j - 1] + 1, // substitution
           matrix[i][j - 1] + 1, // insertion
-          matrix[i - 1][j] + 1 // deletion
+          matrix[i - 1][i] + 1 // deletion
         );
       }
     }
@@ -76,15 +76,12 @@ export default function Home() {
 
 
   useEffect(() => {
+    document.documentElement.classList.remove("dark", "fully-black");
+
     if (theme === "fully-black") {
       document.documentElement.classList.add("fully-black");
-      document.documentElement.classList.remove("dark");
     } else if (theme === "dark") {
       document.documentElement.classList.add("dark");
-      document.documentElement.classList.remove("fully-black");
-    } else {
-      document.documentElement.classList.remove("dark");
-      document.documentElement.classList.remove("fully-black");
     }
   }, [theme]);
 
@@ -562,4 +559,3 @@ export default function Home() {
     </div>
   );
 }
-
