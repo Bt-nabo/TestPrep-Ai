@@ -14,8 +14,7 @@ import { Loader2 } from "lucide-react";
 import { fileTypeFromBuffer } from 'file-type';
 import * as mammoth from 'mammoth';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-//import * as odtParser from 'odt-parser';
-
+import { Switch } from "@/components/ui/switch";
 
 export type FileType = ".txt" | ".pdf" | ".rtf" | ".docx";
 
@@ -65,18 +64,16 @@ export default function Home() {
   const [results, setResults] = useState<
     { question: string; userAnswer: string; correctAnswer: string; isCorrect: boolean }[]
   >([]);
-
+    const [monetBackgroundColor, setMonetBackgroundColor] = useState<string | null>(null);
   // Quiz Generation State
   const [quizClass, setQuizClass] = useState("");
   const [quizSubject, setQuizSubject] = useState("");
   const [quizTopic, setQuizTopic] = useState("");
   const [numQuestions, setNumQuestions] = useState(5); // Default to 5 questions
+    const [mcqOnly, setMcqOnly] = useState(false); // State for MCQ toggle
 
   // Storing User Answers
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
-
-    // Monet Theme Random Color State
-    const [monetBackgroundColor, setMonetBackgroundColor] = useState<string | null>(null);
 
     const generateMonetColor = () => {
         const hue = Math.floor(Math.random() * 360);
@@ -154,16 +151,25 @@ export default function Home() {
           fileType: fileTypeExtension,
         });
 
+                  // Apply MCQ filter
+                  let filteredQuestions = parsedQuestions;
+                  if (mcqOnly) {
+                      filteredQuestions = parsedQuestions.filter(q => q.isMultipleChoice);
+                  } else {
+                      filteredQuestions = parsedQuestions;
+                  }
+
         // Sequence the questions using GenAI
         const sequencedQuestions = await sequenceQuestions({
-          questions: parsedQuestions.map((q) => q.question),
+          questions: filteredQuestions.map((q) => q.question),
         });
 
         // Reorder parsedQuestions based on sequencedQuestions
         const orderedQuestions = sequencedQuestions.orderedQuestions.map(
           (orderedQuestion) =>
-            parsedQuestions.find((q) => q.question === orderedQuestion)!
+          filteredQuestions.find((q) => q.question === orderedQuestion)!
         );
+
 
         setQuestions(orderedQuestions);
         setCurrentQuestionIndex(0); // Reset to the first question
@@ -185,7 +191,7 @@ export default function Home() {
     };
 
     reader.readAsDataURL(file);
-  }, [parseQuestions, sequenceQuestions, detectedFileType]);
+  }, [parseQuestions, sequenceQuestions, detectedFileType, mcqOnly]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -301,14 +307,22 @@ export default function Home() {
     setUserAnswers([]); // Clear user answers
 
     try {
-      const generatedQuestions = await generateQuizQuestions({
-        quizClass: quizClass,
-        quizSubject: quizSubject,
-        quizTopic: quizTopic,
-        numQuestions: numQuestions,
-      });
+                  let filteredQuestions;
 
-      setQuestions(generatedQuestions);
+                  const generatedQuestions = await generateQuizQuestions({
+                    quizClass: quizClass,
+                    quizSubject: quizSubject,
+                    quizTopic: quizTopic,
+                    numQuestions: numQuestions,
+                  });
+
+                  if (mcqOnly) {
+                      filteredQuestions = generatedQuestions.filter(q => q.isMultipleChoice);
+                  } else {
+                      filteredQuestions = generatedQuestions;
+                  }
+
+      setQuestions(filteredQuestions);
       setCurrentQuestionIndex(0);
       setFeedback(null);
       setTestComplete(false);
@@ -320,9 +334,10 @@ export default function Home() {
     }
   };
 
-  const handleMultipleChoiceAnswer = (option: string) => {
-    setUserAnswer(option);
-  };
+    const handleMultipleChoiceAnswer = (option: string) => {
+        setUserAnswer(option);
+    };
+
 
     const toggleMonetTheme = () => {
         if (theme === "monet") {
@@ -332,22 +347,32 @@ export default function Home() {
         }
     };
 
+    useEffect(() => {
+        if (theme === "monet") {
+            generateMonetColor();
+        }
+    }, [theme]);
+
+
   return (
     <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background px-4 shadow-lg" style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline">Theme</Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setTheme("fully-black")}>Fully Black</DropdownMenuItem>
-          <DropdownMenuItem onClick={toggleMonetTheme}>Monet</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+                  <div className="absolute top-4 left-4">
+                      <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                              <Button variant="outline">Theme</Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                              <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setTheme("fully-black")}>Fully Black</DropdownMenuItem>
+                              <DropdownMenuItem onClick={toggleMonetTheme}>Monet</DropdownMenuItem>
+                          </DropdownMenuContent>
+                      </DropdownMenu>
+                  </div>
       <h1 className="text-4xl font-bold mb-6 text-foreground">TestPrep AI</h1>
 
       <div className="flex flex-col w-full max-w-4xl items-center">
+
         {/* Upload Questions Section */}
         <Card className="w-full max-w-md space-y-4 mb-8">
           <CardHeader>
@@ -434,6 +459,15 @@ export default function Home() {
                 onChange={(e) => setNumQuestions(parseInt(e.target.value))}
               />
             </div>
+                                          <div className="flex items-center space-x-2">
+                                              <Switch id="mcq-only" onCheckedChange={setMcqOnly} />
+                                              <label
+                                                  htmlFor="mcq-only"
+                                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                              >
+                                                  Multiple choice question
+                                              </label>
+                                          </div>
             <Button onClick={handleGenerateQuiz} disabled={isLoading}>
               {isLoading ? (
                 <>
@@ -577,4 +611,3 @@ export default function Home() {
     </div>
   );
 }
-
