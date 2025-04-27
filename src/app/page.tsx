@@ -481,8 +481,9 @@ export default function Home() {
               <div>
                 <h3 className="text-md font-semibold mb-2">Your Results:</h3>
                 {results.map((result, index) => {
+                  const question = questions[index]; // Get the corresponding question
                   let correctnessMessage = result.isCorrect ? "Correct" : "Incorrect";
-                  if (!result.isCorrect && question.isMultipleChoice) {
+                  if (!result.isCorrect && question?.isMultipleChoice) {
                     correctnessMessage += ` (Correct answer: ${result.correctAnswer})`;
                   }
                   return (
@@ -494,7 +495,7 @@ export default function Home() {
                         Your Answer: {result.userAnswer}
                       </p>
                       
-                      {!question.isMultipleChoice && (
+                      {!question?.isMultipleChoice && (
                         <p>
                            Correct Answer: {result.correctAnswer}
                         </p>
@@ -531,4 +532,5 @@ export default function Home() {
     </div>
   );
 }
+
 
