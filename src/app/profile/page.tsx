@@ -83,6 +83,19 @@ const classes = [
   },
 ];
 
+const subjectIcons: { [subject: string]: React.ReactNode } = {
+    "Physics": <BookOpen className="w-4 h-4" />,
+    "Chemistry": <MessageSquare className="w-4 h-4" />,
+    "Mathematics": <Trophy className="w-4 h-4" />,
+    "Biology": <CheckCircle className="w-4 h-4" />,
+    "English": <BookOpen className="w-4 h-4" />,
+    "Hindi": <BookOpen className="w-4 h-4" />,
+    "History": <BookOpen className="w-4 h-4" />,
+    "Civics": <BookOpen className="w-4 h-4" />,
+    "Geography": <BookOpen className="w-4 h-4" />,
+    "Science": <BookOpen className="w-4 h-4" />
+};
+
 export default function Profile() {
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const [name, setName] = useState(''); // Changed default name to empty string
@@ -345,7 +358,16 @@ export default function Profile() {
                               <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                   Taken Subjects:
                               </label>
-                              <p>{selectedSubjects.join(', ')}</p>
+                              <div className="grid grid-cols-3 gap-2">
+                                  {selectedSubjects.map((subject) => (
+                                      <div key={subject} className="flex items-center justify-center p-2 rounded-md border border-muted shadow-sm">
+                                          {subjectIcons[subject] && (
+                                              <span className="mr-1">{subjectIcons[subject]}</span>
+                                          )}
+                                          <span>{subject}</span>
+                                      </div>
+                                  ))}
+                              </div>
                           </div>
 
           
