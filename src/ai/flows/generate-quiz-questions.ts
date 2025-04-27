@@ -15,7 +15,7 @@ const GenerateQuizQuestionsInputSchema = z.object({
   quizClass: z.string().describe('The class for which the quiz is being generated (e.g., Math 101).'),
   quizSubject: z.string().describe('The subject of the quiz (e.g., Algebra).'),
   quizTopic: z.string().describe('The specific topic or chapter for the quiz (e.g., Linear Equations).'),
-  numQuestions: z.number().min(1).max(20).describe('The number of questions to generate for the quiz.'),
+  numQuestions: z.number().min(1).max(100).describe('The number of questions to generate for the quiz.'),
 });
 export type GenerateQuizQuestionsInput = z.infer<typeof GenerateQuizQuestionsInputSchema>;
 
@@ -40,7 +40,7 @@ const prompt = ai.definePrompt({
       quizClass: z.string().describe('The class for which the quiz is being generated (e.g., Math 101).'),
       quizSubject: z.string().describe('The subject of the quiz (e.g., Algebra).'),
       quizTopic: z.string().describe('The specific topic or chapter for the quiz (e.g., Linear Equations).'),
-      numQuestions: z.number().min(1).max(20).describe('The number of questions to generate for the quiz.'),
+      numQuestions: z.number().min(1).max(100).describe('The number of questions to generate for the quiz.'),
     }),
   },
   output: {
@@ -77,3 +77,4 @@ async input => {
   const {output} = await prompt(input);
   return output!;
 });
+
