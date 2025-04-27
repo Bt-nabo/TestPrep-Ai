@@ -213,7 +213,7 @@ export default function Home() {
     const currentQuestion = questions[currentQuestionIndex];
     if (currentQuestion && userAnswer.trim() !== "") {
 
-      const correctAnswer = currentQuestion.answer.toLowerCase().trim();
+      const correctAnswer = question?.answer?.toLowerCase().trim() || "";
       const userAnswerLower = userAnswer.toLowerCase().trim();
 
       // Calculate Levenshtein distance
@@ -632,4 +632,5 @@ export default function Home() {
     </div>
   );
 }
+
 
