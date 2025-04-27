@@ -7,6 +7,7 @@ import Link from 'next/link';
 import {DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem} from "@/components/ui/dropdown-menu";
 import {Button} from "@/components/ui/button";
 import {useState, useEffect} from "react";
+import {cn} from "@/lib/utils";
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -73,12 +74,6 @@ export default function RootLayout({
         <header className="bg-secondary text-secondary-foreground py-4 px-6 flex justify-between items-center">
           <Link href="/" className="text-lg font-semibold">TestPrep AI</Link>
           <nav className="flex items-center space-x-6">
-            <Link href="/profile">
-              <Button variant="ghost">Profile</Button>
-            </Link>
-            <Link href="/score-history">
-              <Button variant="ghost">Score History</Button>
-            </Link>
           <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline">Theme</Button>
@@ -94,6 +89,14 @@ export default function RootLayout({
         </header>
         <div style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
           {children}
+                <div className="fixed bottom-4 left-4 flex space-x-4">
+                    <Link href="/profile">
+                        <Button variant="ghost">Profile</Button>
+                    </Link>
+                    <Link href="/score-history">
+                        <Button variant="ghost">Score History</Button>
+                    </Link>
+                </div>
         </div>
       </body>
     </html>
