@@ -84,16 +84,16 @@ const classes = [
 ];
 
 const subjectIcons: { [subject: string]: React.ReactNode } = {
-    "Physics": <BookOpen className="w-4 h-4" />,
-    "Chemistry": <MessageSquare className="w-4 h-4" />,
-    "Mathematics": <Trophy className="w-4 h-4" />,
-    "Biology": <CheckCircle className="w-4 h-4" />,
-    "English": <BookOpen className="w-4 h-4" />,
-    "Hindi": <BookOpen className="w-4 h-4" />,
-    "History": <BookOpen className="w-4 h-4" />,
-    "Civics": <BookOpen className="w-4 h-4" />,
-    "Geography": <BookOpen className="w-4 h-4" />,
-    "Science": <BookOpen className="w-4 h-4" />
+    "Physics": <BookOpen className="w-5 h-5" />,
+    "Chemistry": <MessageSquare className="w-5 h-5" />,
+    "Mathematics": <Trophy className="w-5 h-5" />,
+    "Biology": <CheckCircle className="w-5 h-5" />,
+    "English": <BookOpen className="w-5 h-5" />,
+    "Hindi": <BookOpen className="w-5 h-5" />,
+    "History": <BookOpen className="w-5 h-5" />,
+    "Civics": <BookOpen className="w-5 h-5" />,
+    "Geography": <BookOpen className="w-5 h-5" />,
+    "Science": <BookOpen className="w-5 h-5" />
 };
 
 export default function Profile() {
@@ -240,7 +240,7 @@ export default function Profile() {
                     <Label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                         Taken Subjects
                     </Label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                         {availableSubjects.map((subject) => (
                             <div key={subject} className="flex items-center space-x-2">
                                 <Input
@@ -360,9 +360,9 @@ export default function Profile() {
                               </label>
                               <div className="grid grid-cols-3 gap-2">
                                   {selectedSubjects.map((subject) => (
-                                      <div key={subject} className="flex items-center justify-center p-2 rounded-md border border-muted shadow-sm">
+                                      <div key={subject} className="flex flex-col items-center justify-center p-2 rounded-md border border-muted shadow-sm">
                                           {subjectIcons[subject] && (
-                                              <span className="mr-1">{subjectIcons[subject]}</span>
+                                              <span className="mb-1">{subjectIcons[subject]}</span>
                                           )}
                                           <span>{subject}</span>
                                       </div>
