@@ -16,6 +16,9 @@ import * as mammoth from 'mammoth';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Settings } from "lucide-react"; // Import the Settings icon
+import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+
 
 export type FileType = ".txt" | ".pdf" | ".rtf" | ".docx";
 
@@ -72,6 +75,7 @@ export default function Home() {
   const [numQuestions, setNumQuestions] = useState(5); // Default to 5 questions
   const [mcqOnly, setMcqOnly] = useState(false); // State for MCQ toggle
   const [type, setType] = useState<'uploaded' | 'generated'>('uploaded');
+  const router = useRouter();
 
 
   // Storing User Answers
@@ -164,12 +168,13 @@ export default function Home() {
         );
 
 
-        setQuestions(orderedQuestions);
-        setCurrentQuestionIndex(0); // Reset to the first question
-        setFeedback(null); // Clear any previous feedback
-        setTestComplete(false); // Reset test completion status
+        // setQuestions(orderedQuestions);
+        // setCurrentQuestionIndex(0); // Reset to the first question
+        // setFeedback(null); // Clear any previous feedback
+        // setTestComplete(false); // Reset test completion status
         setIsLoading(false);
-          setType('uploaded');
+        setType('uploaded');
+        router.push(`/quiz?type=uploaded&questions=${encodeURIComponent(JSON.stringify(orderedQuestions))}`);
 
       } catch (error: any) {
         console.error("Error parsing questions:", error);
@@ -185,7 +190,7 @@ export default function Home() {
     };
 
     reader.readAsDataURL(file);
-  }, [parseQuestions, sequenceQuestions, mcqOnly]);
+  }, [parseQuestions, sequenceQuestions, mcqOnly, router]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -196,124 +201,6 @@ export default function Home() {
     }
   });
 
-
-  const handleAnswerSubmit = async () => {
-    if (questions.length === 0) {
-      setFeedback("No questions available. Please upload a file or generate a quiz.");
-      return;
-    }
-
-    const currentQuestion = questions[currentQuestionIndex];
-    if (currentQuestion && userAnswer.trim() !== "") {
-
-      const correctAnswer = questions[currentQuestionIndex]?.answer?.toLowerCase().trim() || "";
-      const userAnswerLower = userAnswer.toLowerCase().trim();
-
-      // Calculate Levenshtein distance
-      const distance = levenshteinDistance(userAnswerLower, correctAnswer);
-
-      // Set a threshold for acceptable distance (adjust as needed)
-      const threshold = Math.max(3, Math.floor(correctAnswer.length * 0.2)); //Dynamic threshold
-
-      if (distance <= threshold) {
-        setFeedback("Correct!");
-      } else {
-        setFeedback(`Incorrect.`);
-      }
-    } else {
-      setFeedback("Please provide an answer.");
-    }
-  };
-
-  const handleNextQuestion = () => {
-    // Store the user's answer
-    const updatedAnswers = [...userAnswers];
-    updatedAnswers[currentQuestionIndex] = userAnswer;
-    setUserAnswers(updatedAnswers);
-
-    setUserAnswer(""); // Clear the user's answer
-    setFeedback(null); // Clear the feedback
-
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setUserAnswer(updatedAnswers[currentQuestionIndex + 1] || ""); // Load next answer if available
-    } else {
-      setTestComplete(true);
-    }
-  };
-
-  const handlePreviousQuestion = () => {
-    // Store the user's answer
-    const updatedAnswers = [...userAnswers];
-    updatedAnswers[currentQuestionIndex] = userAnswer;
-    setUserAnswers(updatedAnswers);
-
-    setFeedback(null); // Clear the feedback
-
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-      setUserAnswer(userAnswers[currentQuestionIndex - 1] || ""); // Load previous answer
-    }
-  };
-
-  const handleReview = () => {
-    setCurrentQuestionIndex(0); // Shift to question 1
-    setTestComplete(false); // Allow navigation
-    setShowResults(false); // Hide results if reviewing
-    setUserAnswer(userAnswers[0] || ""); // Load the first answer, if available
-
-  };
-
-  const handleSubmitTest = async () => {
-    // Store user's final answer for current question
-    const updatedAnswers = [...userAnswers];
-    updatedAnswers[currentQuestionIndex] = userAnswer;
-    setUserAnswers(updatedAnswers);
-
-    let numCorrect = 0;
-    // Implements submit test logic here, e.g., store user's answer and if it's correct
-    const newResults = questions.map((question, index) => {
-      const correctAnswer = question?.answer?.toLowerCase().trim() || "";
-      const userAnswerLower = updatedAnswers[index]?.toLowerCase().trim() || "";
-      const distance = levenshteinDistance(userAnswerLower, correctAnswer);
-      const threshold = Math.max(3, Math.floor(correctAnswer.length * 0.2));
-      let isCorrect = distance <= threshold;
-      if (isCorrect) {
-        numCorrect++;
-      }
-      return {
-        question: question.question,
-        userAnswer: updatedAnswers[index] || "",
-        correctAnswer: question.answer,
-        isCorrect: distance <= threshold,
-      };
-    });
-
-    setResults(newResults);
-    setShowResults(true); // Show the results
-    setTestComplete(true);
-
-    // Save score history to local storage
-    saveScoreHistory(numCorrect, questions.length);
-  };
-
-  const saveScoreHistory = (numCorrect: number, totalQuestions: number) => {
-    const newRecord = {
-      type: type === 'uploaded' ? 'Uploaded File' : 'Generated Quiz',
-      date: Date.now(),
-      score: `${numCorrect}/${totalQuestions}`,
-    };
-
-    // Retrieve existing history
-    const storedHistory = localStorage.getItem('scoreHistory');
-    let history = storedHistory ? JSON.parse(storedHistory) : [];
-
-    // Add the new record to the history
-    history = [newRecord, ...history];
-
-    // Store updated history back to local storage
-    localStorage.setItem('scoreHistory', JSON.stringify(history));
-  };
 
   const handleGenerateQuiz = async () => {
     setIsLoading(true);
@@ -339,11 +226,13 @@ export default function Home() {
         filteredQuestions = generatedQuestions;
       }
 
-      setQuestions(filteredQuestions);
-      setCurrentQuestionIndex(0);
-      setFeedback(null);
-      setTestComplete(false);
+      // setQuestions(filteredQuestions);
+      // setCurrentQuestionIndex(0);
+      // setFeedback(null);
+      // setTestComplete(false);
         setType('generated');
+      router.push(`/quiz?type=generated&questions=${encodeURIComponent(JSON.stringify(filteredQuestions))}`);
+
     } catch (error: any) {
       console.error("Error generating quiz:", error);
       setFeedback(`Failed to generate quiz: ${error.message}`);
@@ -351,24 +240,6 @@ export default function Home() {
       setIsLoading(false);
     }
   };
-
-  const handleMultipleChoiceAnswer = (option: string) => {
-    setUserAnswer(option);
-  };
-
-  const toggleMonetTheme = () => {
-    if (theme === "monet") {
-      generateMonetColor(); // Regenerate color if already in monet theme
-    } else {
-      // setTheme("monet"); // Switch to monet theme
-    }
-  };
-
-  // useEffect(() => {
-  //     if (theme === "monet") {
-  //         generateMonetColor();
-  //     }
-  // }, [theme]);
 
 
   return (
@@ -483,130 +354,6 @@ export default function Home() {
           </CardContent>
         </Card>
       </div>
-
-      {questions.length === 0 ? null : (!testComplete && !showResults) ? (
-        <Card className="w-full max-w-md mt-8 space-y-4">
-          <CardHeader>
-            <h2 className="text-lg font-semibold">
-              Question {currentQuestionIndex + 1} / {questions.length}
-            </h2>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {questions[currentQuestionIndex]?.question ? (
-              <>
-                <p className="text-foreground">
-                  {questions[currentQuestionIndex].question}
-                </p>
-                {questions[currentQuestionIndex].isMultipleChoice &&
-                  questions[currentQuestionIndex].options && (
-                    <RadioGroup onValueChange={handleMultipleChoiceAnswer} defaultValue={userAnswer}>
-                      <div className="space-y-2">
-                        {questions[currentQuestionIndex].options!.map((option, index) => (
-                          <div key={index} className="flex items-center space-x-2">
-                            <RadioGroupItem value={option} id={`option-${index}`} className="h-4 w-4" />
-                            <label htmlFor={`option-${index}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                              {option}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </RadioGroup>
-                  )}
-              </>
-            ) : (
-              <p className="text-red-500">Error: Question content not available.</p>
-            )}
-            {!questions[currentQuestionIndex]?.isMultipleChoice && (
-              <Textarea
-                placeholder="Your answer"
-                value={userAnswer}
-                onChange={(e) => setUserAnswer(e.target.value)}
-                className="mb-4"
-              />
-            )}
-            <div className="flex justify-between">
-              <Button variant="secondary" onClick={handleAnswerSubmit}>
-                Submit Answer
-              </Button>
-            </div>
-            <div className="flex justify-between">
-              <Button
-                disabled={currentQuestionIndex === 0}
-                onClick={handlePreviousQuestion}
-              >
-                Previous
-              </Button>
-              <Button
-                onClick={handleNextQuestion}
-              >
-                Next Question
-              </Button>
-            </div>
-          </CardContent>
-          {feedback && <p className="text-sm mt-2">{feedback}</p>}
-        </Card>
-      ) : (
-        <Card className="w-full max-w-md mt-8 space-y-4">
-          <CardHeader>
-            <h2 className="text-lg font-semibold">
-              {testComplete ? "Test Complete!" : "Test Results"}
-            </h2>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {testComplete && !showResults ? (
-              <p className="text-foreground">
-                You have reached the end of the test.
-              </p>
-            ) : null}
-            {showResults && results.length > 0 ? (
-              <div>
-                <h3 className="text-md font-semibold mb-2">Your Results:</h3>
-                {results.map((result, index) => {
-                  const question = questions[index]; // Get the corresponding question
-                  let correctnessMessage = result.isCorrect ? "Correct" : "Incorrect";
-                  if (!result.isCorrect && question?.isMultipleChoice) {
-                    correctnessMessage += ` (Correct answer: ${result.correctAnswer})`;
-                  }
-                  return (
-                    <div key={index} className="mb-4">
-                      <p className="font-medium">
-                        {index + 1}. {result.question}
-                      </p>
-                      <p>
-                        Your Answer: {result.userAnswer || "No answer provided"}
-                      </p>
-
-                      {!question?.isMultipleChoice && (
-                        <p>
-                          Correct Answer: {result.correctAnswer}
-                        </p>
-                      )}
-
-                      <p className={result.isCorrect ? "text-green-500" : "text-red-500"}>
-                        {correctnessMessage}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : null}
-            <div className="flex justify-between">
-              {testComplete && !showResults ? (
-                <Button variant="secondary" onClick={handleReview}>
-                  Review Answers
-                </Button>
-              ) : null}
-              {!showResults ? (
-                <Button onClick={handleSubmitTest} disabled={showResults}>
-                  Submit Test
-                </Button>
-              ) : null}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-
       {feedback && (
         <div className="mt-4 text-center text-sm text-gray-500">
           {feedback}
@@ -615,3 +362,4 @@ export default function Home() {
     </div>
   );
 }
+
