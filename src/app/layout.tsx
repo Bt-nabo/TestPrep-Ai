@@ -7,8 +7,9 @@ import Link from 'next/link';
 import {DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem} from "@/components/ui/dropdown-menu";
 import {Button} from "@/components/ui/button";
 import {useState, useEffect} from "react";
-import {User, BarChart} from "lucide-react";
+import {User, BarChart, Settings} from "lucide-react";
 import {cn} from "@/lib/utils";
+import {Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription} from "@/components/ui/dialog";
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,6 +34,8 @@ export default function RootLayout({
 }>) {
   const [theme, setTheme] = useState<"light" | "dark" | "fully-black" | "monet">("monet");
   const [monetBackgroundColor, setMonetBackgroundColor] = useState<string | null>(null);
+    const [open, setOpen] = useState(false);
+
 
   const generateMonetColor = () => {
     const hue = Math.floor(Math.random() * 360);
@@ -76,17 +79,32 @@ export default function RootLayout({
         <header className="bg-secondary text-secondary-foreground py-4 px-6 flex justify-between items-center">
           <Link href="/" className="text-lg font-semibold">TestPrep AI</Link>
           <nav className="flex items-center space-x-6">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">Theme</Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("fully-black")}>Fully Black</DropdownMenuItem>
-                <DropdownMenuItem onClick={toggleMonetTheme}>Monet</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              <Dialog open={open} onOpenChange={setOpen}>
+                  <DialogTrigger asChild>
+                      <Button variant="outline"><Settings className="mr-2 h-4 w-4" />Settings</Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                          <DialogTitle>Theme Settings</DialogTitle>
+                          <DialogDescription>
+                              Customize the look and feel of TestPrep AI.
+                          </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                          <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                  <Button variant="outline">Theme</Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent>
+                                  <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => setTheme("fully-black")}>Fully Black</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={toggleMonetTheme}>Monet</DropdownMenuItem>
+                              </DropdownMenuContent>
+                          </DropdownMenu>
+                      </div>
+                  </DialogContent>
+              </Dialog>
           </nav>
         </header>
         <div style={{ backgroundColor: theme === 'monet' && monetBackgroundColor ? monetBackgroundColor : undefined }}>
@@ -115,3 +133,4 @@ export default function RootLayout({
     </html>
   );
 }
+
