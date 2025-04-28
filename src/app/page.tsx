@@ -8,13 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { parseQuestions } from "@/ai/flows/parse-questions";
 import { sequenceQuestions } from "@/ai/flows/sequence-questions";
-import { generateQuizQuestions } from "@/ai/flows/generate-quiz-questions"; // Import the new flow
+import { generateQuizQuestions } from "@/ai/flows/generate-quiz-questions";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Loader2 } from "lucide-react";
 import { fileTypeFromBuffer } from 'file-type';
 import * as mammoth from 'mammoth';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
+import { Settings } from "lucide-react"; // Import the Settings icon
 
 export type FileType = ".txt" | ".pdf" | ".rtf" | ".docx";
 
@@ -63,16 +64,20 @@ export default function Home() {
   const [results, setResults] = useState<
     { question: string; userAnswer: string; correctAnswer: string; isCorrect: boolean }[]
   >([]);
-    const [monetBackgroundColor, setMonetBackgroundColor] = useState<string | null>(null);
+  const [monetBackgroundColor, setMonetBackgroundColor] = useState<string | null>(null);
   // Quiz Generation State
   const [quizClass, setQuizClass] = useState("");
   const [quizSubject, setQuizSubject] = useState("");
   const [quizTopic, setQuizTopic] = useState("");
   const [numQuestions, setNumQuestions] = useState(5); // Default to 5 questions
-    const [mcqOnly, setMcqOnly] = useState(false); // State for MCQ toggle
+  const [mcqOnly, setMcqOnly] = useState(false); // State for MCQ toggle
+  const [type, setType] = useState<'uploaded' | 'generated'>('uploaded');
+
 
   // Storing User Answers
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
+    const [theme, setTheme] = useState<"light" | "dark" | "fully-black" | "monet">("monet");
+    const [open, setOpen] = useState(false);
 
     const generateMonetColor = () => {
         const hue = Math.floor(Math.random() * 360);
@@ -81,6 +86,11 @@ export default function Home() {
         setMonetBackgroundColor(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
     };
 
+    useEffect(() => {
+        if (theme === "monet") {
+            generateMonetColor();
+        }
+    }, [theme]);
 
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -136,13 +146,11 @@ export default function Home() {
           fileType: fileTypeExtension,
         });
 
-                  // Apply MCQ filter
-                  let filteredQuestions = parsedQuestions;
-                  if (mcqOnly) {
-                      filteredQuestions = parsedQuestions.filter(q => q.isMultipleChoice);
-                  } else {
-                      filteredQuestions = parsedQuestions;
-                  }
+        // Apply MCQ filter
+        let filteredQuestions = parsedQuestions;
+        if (mcqOnly) {
+          filteredQuestions = parsedQuestions.filter(q => q.isMultipleChoice);
+        }
 
         // Sequence the questions using GenAI
         const sequencedQuestions = await sequenceQuestions({
@@ -152,7 +160,7 @@ export default function Home() {
         // Reorder parsedQuestions based on sequencedQuestions
         const orderedQuestions = sequencedQuestions.orderedQuestions.map(
           (orderedQuestion) =>
-          filteredQuestions.find((q) => q.question === orderedQuestion)!
+            filteredQuestions.find((q) => q.question === orderedQuestion)!
         );
 
 
@@ -161,6 +169,7 @@ export default function Home() {
         setFeedback(null); // Clear any previous feedback
         setTestComplete(false); // Reset test completion status
         setIsLoading(false);
+          setType('uploaded');
 
       } catch (error: any) {
         console.error("Error parsing questions:", error);
@@ -227,17 +236,17 @@ export default function Home() {
 
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-       setUserAnswer(updatedAnswers[currentQuestionIndex + 1] || ""); // Load next answer if available
+      setUserAnswer(updatedAnswers[currentQuestionIndex + 1] || ""); // Load next answer if available
     } else {
       setTestComplete(true);
     }
   };
 
   const handlePreviousQuestion = () => {
-      // Store the user's answer
-      const updatedAnswers = [...userAnswers];
-      updatedAnswers[currentQuestionIndex] = userAnswer;
-      setUserAnswers(updatedAnswers);
+    // Store the user's answer
+    const updatedAnswers = [...userAnswers];
+    updatedAnswers[currentQuestionIndex] = userAnswer;
+    setUserAnswers(updatedAnswers);
 
     setFeedback(null); // Clear the feedback
 
@@ -261,26 +270,49 @@ export default function Home() {
     updatedAnswers[currentQuestionIndex] = userAnswer;
     setUserAnswers(updatedAnswers);
 
-    // Implements submit test logic here, e.g., send data to server
-    // Store user's answer and if it's correct
-
+    let numCorrect = 0;
+    // Implements submit test logic here, e.g., store user's answer and if it's correct
     const newResults = questions.map((question, index) => {
-         const correctAnswer = question?.answer?.toLowerCase().trim() || "";
-         const userAnswerLower = updatedAnswers[index]?.toLowerCase().trim() || "";
-         const distance = levenshteinDistance(userAnswerLower, correctAnswer);
-          const threshold = Math.max(3, Math.floor(correctAnswer.length * 0.2));
-          let isCorrect = distance <= threshold;
-          return {
-            question: question.question,
-            userAnswer: updatedAnswers[index] || "",
-            correctAnswer: question.answer,
-            isCorrect: distance <= threshold,
-         };
-      });
+      const correctAnswer = question?.answer?.toLowerCase().trim() || "";
+      const userAnswerLower = updatedAnswers[index]?.toLowerCase().trim() || "";
+      const distance = levenshteinDistance(userAnswerLower, correctAnswer);
+      const threshold = Math.max(3, Math.floor(correctAnswer.length * 0.2));
+      let isCorrect = distance <= threshold;
+      if (isCorrect) {
+        numCorrect++;
+      }
+      return {
+        question: question.question,
+        userAnswer: updatedAnswers[index] || "",
+        correctAnswer: question.answer,
+        isCorrect: distance <= threshold,
+      };
+    });
 
     setResults(newResults);
     setShowResults(true); // Show the results
     setTestComplete(true);
+
+    // Save score history to local storage
+    saveScoreHistory(numCorrect, questions.length);
+  };
+
+  const saveScoreHistory = (numCorrect: number, totalQuestions: number) => {
+    const newRecord = {
+      type: type === 'uploaded' ? 'Uploaded File' : 'Generated Quiz',
+      date: Date.now(),
+      score: `${numCorrect}/${totalQuestions}`,
+    };
+
+    // Retrieve existing history
+    const storedHistory = localStorage.getItem('scoreHistory');
+    let history = storedHistory ? JSON.parse(storedHistory) : [];
+
+    // Add the new record to the history
+    history = [newRecord, ...history];
+
+    // Store updated history back to local storage
+    localStorage.setItem('scoreHistory', JSON.stringify(history));
   };
 
   const handleGenerateQuiz = async () => {
@@ -292,25 +324,26 @@ export default function Home() {
     setUserAnswers([]); // Clear user answers
 
     try {
-                  let filteredQuestions;
+      let filteredQuestions;
 
-                  const generatedQuestions = await generateQuizQuestions({
-                    quizClass: quizClass,
-                    quizSubject: quizSubject,
-                    quizTopic: quizTopic,
-                    numQuestions: numQuestions,
-                  });
+      const generatedQuestions = await generateQuizQuestions({
+        quizClass: quizClass,
+        quizSubject: quizSubject,
+        quizTopic: quizTopic,
+        numQuestions: numQuestions,
+      });
 
-                  if (mcqOnly) {
-                      filteredQuestions = generatedQuestions.filter(q => q.isMultipleChoice);
-                  } else {
-                      filteredQuestions = generatedQuestions;
-                  }
+      if (mcqOnly) {
+        filteredQuestions = generatedQuestions.filter(q => q.isMultipleChoice);
+      } else {
+        filteredQuestions = generatedQuestions;
+      }
 
       setQuestions(filteredQuestions);
       setCurrentQuestionIndex(0);
       setFeedback(null);
       setTestComplete(false);
+        setType('generated');
     } catch (error: any) {
       console.error("Error generating quiz:", error);
       setFeedback(`Failed to generate quiz: ${error.message}`);
@@ -319,30 +352,28 @@ export default function Home() {
     }
   };
 
-    const handleMultipleChoiceAnswer = (option: string) => {
-        setUserAnswer(option);
-    };
+  const handleMultipleChoiceAnswer = (option: string) => {
+    setUserAnswer(option);
+  };
 
+  const toggleMonetTheme = () => {
+    if (theme === "monet") {
+      generateMonetColor(); // Regenerate color if already in monet theme
+    } else {
+      // setTheme("monet"); // Switch to monet theme
+    }
+  };
 
-    const toggleMonetTheme = () => {
-        if (theme === "monet") {
-            generateMonetColor(); // Regenerate color if already in monet theme
-        } else {
-            // setTheme("monet"); // Switch to monet theme
-        }
-    };
-
-    // useEffect(() => {
-    //     if (theme === "monet") {
-    //         generateMonetColor();
-    //     }
-    // }, [theme]);
+  // useEffect(() => {
+  //     if (theme === "monet") {
+  //         generateMonetColor();
+  //     }
+  // }, [theme]);
 
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen py-12 bg-background px-4 shadow-lg">
-
-                           <div className="flex flex-col w-full max-w-4xl items-center">
+      <div className="flex flex-col w-full max-w-4xl items-center">
 
         {/* Upload Questions Section */}
         <Card className="w-full max-w-md space-y-4 mb-8">
@@ -430,15 +461,15 @@ export default function Home() {
                 onChange={(e) => setNumQuestions(parseInt(e.target.value))}
               />
             </div>
-                                          <div className="flex items-center space-x-2">
-                                              <Switch id="mcq-only" onCheckedChange={setMcqOnly} />
-                                              <label
-                                                  htmlFor="mcq-only"
-                                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                              >
-                                                  Multiple choice question
-                                              </label>
-                                          </div>
+            <div className="flex items-center space-x-2">
+              <Switch id="mcq-only" onCheckedChange={setMcqOnly} />
+              <label
+                htmlFor="mcq-only"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Multiple choice question
+              </label>
+            </div>
             <Button onClick={handleGenerateQuiz} disabled={isLoading}>
               {isLoading ? (
                 <>
@@ -468,7 +499,7 @@ export default function Home() {
                 </p>
                 {questions[currentQuestionIndex].isMultipleChoice &&
                   questions[currentQuestionIndex].options && (
-                     <RadioGroup onValueChange={handleMultipleChoiceAnswer} defaultValue={userAnswer}>
+                    <RadioGroup onValueChange={handleMultipleChoiceAnswer} defaultValue={userAnswer}>
                       <div className="space-y-2">
                         {questions[currentQuestionIndex].options!.map((option, index) => (
                           <div key={index} className="flex items-center space-x-2">
@@ -533,7 +564,7 @@ export default function Home() {
                 {results.map((result, index) => {
                   const question = questions[index]; // Get the corresponding question
                   let correctnessMessage = result.isCorrect ? "Correct" : "Incorrect";
-                   if (!result.isCorrect && question?.isMultipleChoice) {
+                  if (!result.isCorrect && question?.isMultipleChoice) {
                     correctnessMessage += ` (Correct answer: ${result.correctAnswer})`;
                   }
                   return (
@@ -544,13 +575,13 @@ export default function Home() {
                       <p>
                         Your Answer: {result.userAnswer || "No answer provided"}
                       </p>
-                      
+
                       {!question?.isMultipleChoice && (
                         <p>
-                           Correct Answer: {result.correctAnswer}
+                          Correct Answer: {result.correctAnswer}
                         </p>
                       )}
-                      
+
                       <p className={result.isCorrect ? "text-green-500" : "text-red-500"}>
                         {correctnessMessage}
                       </p>
@@ -574,7 +605,7 @@ export default function Home() {
           </CardContent>
         </Card>
       )}
-    
+
 
       {feedback && (
         <div className="mt-4 text-center text-sm text-gray-500">
@@ -584,4 +615,3 @@ export default function Home() {
     </div>
   );
 }
-
