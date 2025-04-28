@@ -1,3 +1,4 @@
+
 'use client';
 
 import type {Metadata} from 'next';
@@ -85,10 +86,8 @@ export default function RootLayout({
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[425px]">
                       <DialogHeader>
-                          <DialogTitle>Theme Settings</DialogTitle>
-                          <DialogDescription>
-                              Customize the look and feel of TestPrep AI.
-                          </DialogDescription>
+                          <DialogTitle>Settings</DialogTitle>
+                          
                       </DialogHeader>
                       <div className="grid gap-4 py-4">
                           <DropdownMenu>
