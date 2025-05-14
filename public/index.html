@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to TestPrep AI</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            padding: 40px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #007bff; /* A nice blue */
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+        p {
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            color: #555;
+        }
+        #startButton {
+            background-color: #28a745; /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #startButton:hover {
+            background-color: #218838; /* Darker Green */
+            transform: translateY(-2px);
+        }
+        #startButton:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to TestPrep AI</h1>
+        <p>Your personal AI-powered test preparation assistant.</p>
+        <button id="startButton">Start Preparing</button>
+    </div>
+    <script>
+        document.getElementById('startButton').addEventListener('click', function() {
+            window.location.href = '/'; // Navigate to the Next.js app root (src/app/page.tsx)
+        });
+    </script>
+</body>
+</html>
